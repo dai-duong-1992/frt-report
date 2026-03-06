@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phân Tích Hồi Quy FRT</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0F172A;--navy2:#1E293B;--blue:#2563EB;--blue2:#3B82F6;
+  --green:#059669;--red:#DC2626;--orange:#D97706;--purple:#7C3AED;
+  --bg:#F0F4FF;--card:#fff;--border:#E2E8F0;--text:#1E293B;--muted:#64748B;
+}
+body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* NAV TABS */
+.nav{background:var(--navy);padding:0 40px;display:flex;align-items:stretch;gap:0}
+.nav-brand{color:#fff;font-size:15px;font-weight:700;padding:18px 24px 18px 0;border-right:1px solid rgba(255,255,255,.15);margin-right:8px;white-space:nowrap}
+.nav-brand span{color:#60A5FA}
+.tab{padding:18px 20px;color:#94A3B8;font-size:13px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap}
+.tab:hover{color:#fff}
+.tab.active{color:#fff;border-bottom-color:#3B82F6}
+
+/* LAYOUT */
+.page{display:none;max-width:1000px;margin:0 auto;padding:32px 24px 60px}
+.page.active{display:block}
+
+/* HERO CARD */
+.hero-card{background:linear-gradient(135deg,var(--navy) 0%,#1E3A8A 100%);border-radius:16px;padding:32px 36px;margin-bottom:28px;position:relative;overflow:hidden}
+.hero-card::after{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.04)}
+.hero-tag{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#93C5FD;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:12px}
+.hero-title{color:#fff;font-size:26px;font-weight:800;line-height:1.2;margin-bottom:8px}
+.hero-title span{color:#60A5FA}
+.hero-desc{color:#94A3B8;font-size:14px;line-height:1.6;max-width:600px}
+.hero-stats{display:flex;gap:24px;margin-top:20px;flex-wrap:wrap}
+.hstat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px 18px}
+.hstat .v{color:#fff;font-size:20px;font-weight:800}
+.hstat .l{color:#94A3B8;font-size:11px;margin-top:2px}
+
+/* SECTION */
+.section{margin-bottom:28px}
+.section-title{font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* CARDS */
+.card{background:var(--card);border-radius:14px;border:1px solid var(--border);padding:24px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;margin-bottom:4px}
+.card-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+
+/* INSIGHT BOX */
+.insight{background:#EFF6FF;border-left:4px solid var(--blue);border-radius:0 10px 10px 0;padding:12px 16px;font-size:13px;line-height:1.6;color:#1E40AF;margin:16px 0}
+.insight strong{color:#1E3A8A}
+.warn{background:#FEF3C7;border-left-color:var(--orange);color:#92400E}
+.warn strong{color:#78350F}
+.good{background:#DCFCE7;border-left-color:var(--green);color:#166534}
+.good strong{color:#14532D}
+
+/* CHART: SVG-based */
+.chart-wrap{width:100%;overflow-x:auto}
+
+/* LINEAR CHART */
+.linear-chart{position:relative;height:260px;margin:16px 0}
+.lc-grid line{stroke:#E2E8F0;stroke-width:1}
+.lc-axis text{font-size:11px;fill:var(--muted);font-family:'Be Vietnam Pro',sans-serif}
+.lc-bar-actual{fill:#3B82F6;rx:4}
+.lc-bar-pred{fill:#E2E8F0;rx:4}
+.lc-bar-future{fill:#FEF3C7;stroke:#D97706;stroke-width:1.5;rx:4}
+.lc-line{stroke:#EF4444;stroke-width:2.5;fill:none;stroke-dasharray:none}
+.lc-line-ext{stroke:#EF4444;stroke-width:2;fill:none;stroke-dasharray:6,4}
+.lc-dot{fill:#EF4444;stroke:#fff;stroke-width:2}
+.lc-dot-future{fill:#D97706;stroke:#fff;stroke-width:2}
+
+/* HEATMAP */
+.heatmap-wrap{overflow-x:auto;margin:8px 0}
+.heatmap-table{border-collapse:collapse;font-size:11px;width:100%}
+.heatmap-table th{background:var(--navy2);color:#fff;padding:6px 10px;text-align:center;font-weight:600;white-space:nowrap}
+.heatmap-table th:first-child{text-align:left;min-width:160px}
+.heatmap-table td{padding:5px 8px;text-align:center;font-weight:600;font-size:11px;cursor:default;transition:opacity .15s;border:1px solid rgba(255,255,255,.3)}
+.heatmap-table td:first-child{text-align:left;font-weight:500;color:var(--text);background:#F8FAFC!important;border:1px solid var(--border);font-size:12px;padding-left:12px}
+.heatmap-table tr:hover td{opacity:.85}
+
+/* BAR CHART horizontal */
+.bar-h{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+.bar-row{display:flex;align-items:center;gap:10px}
+.bar-label{width:160px;font-size:12px;text-align:right;flex-shrink:0;color:var(--text)}
+.bar-track{flex:1;background:#F1F5F9;border-radius:6px;height:24px;position:relative;overflow:hidden}
+.bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;color:#fff;transition:width .6s ease;white-space:nowrap}
+.bar-val{width:44px;font-size:12px;font-weight:700;text-align:right;flex-shrink:0}
+
+/* PREDICTOR */
+.predictor{background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border:1px solid #86EFAC;border-radius:14px;padding:24px;margin-top:16px}
+.predictor h3{font-size:14px;font-weight:700;color:#166534;margin-bottom:16px}
+.pred-controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.pred-select{background:#fff;border:1.5px solid #86EFAC;border-radius:8px;padding:8px 12px;font-size:13px;font-family:'Be Vietnam Pro',sans-serif;color:var(--text);cursor:pointer;outline:none}
+.pred-select:focus{border-color:var(--green)}
+.pred-result{background:#fff;border-radius:10px;padding:16px 20px;border:1px solid #86EFAC;display:flex;align-items:center;gap:16px}
+.pred-gauge{width:80px;height:80px;flex-shrink:0}
+.pred-text .prob{font-size:28px;font-weight:800}
+.pred-text .label{font-size:12px;color:var(--muted);margin-top:2px}
+.pred-text .advice{font-size:12px;margin-top:8px;padding:6px 10px;border-radius:6px;font-weight:500}
+
+/* WEEKDAY CHART */
+.wd-bars{display:flex;gap:6px;align-items:flex-end;height:120px;margin:12px 0}
+.wd-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.wd-bar{width:100%;border-radius:4px 4px 0 0;transition:height .4s ease}
+.wd-label{font-size:10px;color:var(--muted);font-weight:600;white-space:nowrap}
+.wd-val{font-size:10px;font-weight:700}
+
+/* FORMULA BOX */
+.formula{background:var(--navy);border-radius:10px;padding:14px 18px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#A5F3FC;margin:12px 0;overflow-x:auto}
+.formula .comment{color:#475569}
+.formula .highlight{color:#FDE68A}
+.formula .result{color:#86EFAC}
+
+/* BADGE */
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700}
+.badge-green{background:#DCFCE7;color:#166534}
+.badge-red{background:#FEE2E2;color:#991B1B}
+.badge-orange{background:#FEF3C7;color:#92400E}
+.badge-blue{background:#DBEAFE;color:#1E40AF}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.grid-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-brand">📊 FRT <span>Regression</span></div>
+  <div class="tab active" onclick="switchTab('linear')">📈 Hồi quy tuyến tính</div>
+  <div class="tab" onclick="switchTab('logistic')">🎯 Hồi quy logistic</div>
+  <div class="tab" onclick="switchTab('predictor')">⚡ Dự đoán đơn mới</div>
+</div>
+
+<!-- ══════════ PAGE 1: LINEAR ══════════ -->
+<div class="page active" id="page-linear">
+  <div style="max-width:1000px;margin:0 auto;padding:32px 24px 60px">
+
+    <div class="hero-card">
+      <div class="hero-tag">Hồi quy tuyến tính</div>
+      <div class="hero-title">Xu hướng FRT đang <span>cải thiện</span> —<br>Dự báo 3 tháng tới</div>
+      <div class="hero-desc">Dựa trên dữ liệu Median FRT theo tháng, mô hình tính được tốc độ cải thiện và dự đoán FRT tương lai.</div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="v">−15.5 phút</div><div class="l">Cải thiện mỗi tháng</div></div>
+        <div class="hstat"><div class="v">R² = 0.453</div><div class="l">Độ khớp mô hình</div></div>
+        <div class="hstat"><div class="v">877 đơn</div><div class="l">Dữ liệu đầu vào</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Công thức mô hình</div>
+      <div class="card">
+        <div class="formula">
+<span class="comment">// Hồi quy tuyến tính: y = a·x + b</span>
+<br><span class="highlight">Median FRT (phút)</span> = <span class="result">−15.5</span> × Tháng + <span class="result">69.3</span>
+<br>
+<br><span class="comment">// Dự báo:</span>
+<br>T4: −15.5 × 4 + 69.3 = <span class="result">7 phút</span>
+<br>T5: −15.5 × 5 + 69.3 = <span class="result">~0 phút</span> (đạt SLA target!)
+        </div>
+        <div class="insight">
+          <strong>Ý nghĩa:</strong> Mỗi tháng trôi qua, đội sale đang xử lý nhanh hơn trung bình <strong>15.5 phút</strong>. Nếu xu hướng này giữ nguyên, đến T5 sẽ đạt SLA target 5 phút.
+        </div>
+        <div class="insight warn">
+          <strong>⚠️ Lưu ý R² = 0.453:</strong> Mô hình giải thích được ~45% biến động của FRT. Phần còn lại phụ thuộc vào yếu tố khác (volume đơn, nhân sự, campaign). Dự báo T4–T6 nên xem là <strong>định hướng</strong>, không phải con số chắc chắn.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Biểu đồ xu hướng & dự báo</div>
+      <div class="card">
+        <div class="card-title">Median FRT theo tháng</div>
+        <div class="card-sub">Cột xanh = thực tế | Cột vàng = dự báo | Đường đỏ = đường hồi quy</div>
+        <div class="chart-wrap">
+          <svg id="linear-svg" width="100%" viewBox="0 0 700 280" style="display:block"></svg>
+        </div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:12px">
+          <div style="display:flex;align-items:center;gap:6px"><div style="width:14px;height:14px;background:#3B82F6;border-radius:3px"></div><span style="font-size:12px;color:var(--muted)">Thực tế</span></div>
+          <div style="display:flex;align-items:center;gap:6px"><div style="width:14px;height:14px;background:#FEF3C7;border:1.5px solid #D97706;border-radius:3px"></div><span style="font-size:12px;color:var(--muted)">Dự báo</span></div>
+          <div style="display:flex;align-items:center;gap:6px"><div style="width:24px;height:3px;background:#EF4444;border-radius:2px"></div><span style="font-size:12px;color:var(--muted)">Đường hồi quy</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Phân tích chi tiết</div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Dữ liệu thực tế</div>
+          <div class="card-sub">Median FRT từng tháng</div>
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <tr style="background:#F8FAFC"><th style="padding:8px;text-align:left;font-weight:600">Tháng</th><th style="padding:8px;text-align:center;font-weight:600">Median FRT</th><th style="padding:8px;text-align:center;font-weight:600">Xu hướng</th></tr>
+            <tr><td style="padding:8px">Tháng 1</td><td style="padding:8px;text-align:center;font-weight:700;color:#2563EB">44 phút</td><td style="padding:8px;text-align:center">—</td></tr>
+            <tr style="background:#F8FAFC"><td style="padding:8px">Tháng 2</td><td style="padding:8px;text-align:center;font-weight:700;color:#D97706">58 phút</td><td style="padding:8px;text-align:center"><span class="badge badge-orange">↑ +14p</span></td></tr>
+            <tr><td style="padding:8px">Tháng 3</td><td style="padding:8px;text-align:center;font-weight:700;color:#059669">13 phút</td><td style="padding:8px;text-align:center"><span class="badge badge-green">↓ −45p</span></td></tr>
+          </table>
+          <div class="insight good" style="margin-top:12px"><strong>T3 xuất sắc!</strong> Median FRT giảm mạnh còn 13 phút — gần SLA target 5 phút.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Dự báo T4 → T6</div>
+          <div class="card-sub">Dựa theo đường hồi quy</div>
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <tr style="background:#F8FAFC"><th style="padding:8px;text-align:left;font-weight:600">Tháng</th><th style="padding:8px;text-align:center;font-weight:600">Dự báo FRT</th><th style="padding:8px;text-align:center;font-weight:600">Khả năng đạt SLA</th></tr>
+            <tr><td style="padding:8px">Tháng 4</td><td style="padding:8px;text-align:center;font-weight:700;color:#059669">7 phút</td><td style="padding:8px;text-align:center"><span class="badge badge-orange">Gần đạt</span></td></tr>
+            <tr style="background:#F8FAFC"><td style="padding:8px">Tháng 5</td><td style="padding:8px;text-align:center;font-weight:700;color:#059669">≤ 5 phút</td><td style="padding:8px;text-align:center"><span class="badge badge-green">✓ Đạt target</span></td></tr>
+            <tr><td style="padding:8px">Tháng 6</td><td style="padding:8px;text-align:center;font-weight:700;color:#059669">≤ 5 phút</td><td style="padding:8px;text-align:center"><span class="badge badge-green">✓ Đạt target</span></td></tr>
+          </table>
+          <div class="insight warn" style="margin-top:12px"><strong>Điều kiện:</strong> Giữ được tốc độ cải thiện như T3, không tăng volume đột biến.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ PAGE 2: LOGISTIC ══════════ -->
+<div class="page" id="page-logistic">
+  <div style="max-width:1000px;margin:0 auto;padding:32px 24px 60px">
+
+    <div class="hero-card" style="background:linear-gradient(135deg,#1A0533 0%,#4C1D95 100%)">
+      <div class="hero-tag">Hồi quy logistic</div>
+      <div class="hero-title">Mô hình dự đoán <span>rủi ro vượt SLA</span><br>Độ chính xác 77.8%</div>
+      <div class="hero-desc">Dựa vào 4 yếu tố: nguồn đơn, giờ tạo đơn, thứ trong tuần, tháng — mô hình tính xác suất đơn sẽ bị trễ trước khi xử lý.</div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="v">77.8%</div><div class="l">Accuracy</div></div>
+        <div class="hstat"><div class="v">4 yếu tố</div><div class="l">Feature đầu vào</div></div>
+        <div class="hstat"><div class="v">877 đơn</div><div class="l">Training data</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Yếu tố ảnh hưởng nhiều nhất</div>
+      <div class="card">
+        <div class="card-title">Coefficient (trọng số) từng yếu tố</div>
+        <div class="card-sub">Giá trị âm = giảm rủi ro | Giá trị dương = tăng rủi ro</div>
+        <div class="bar-h" style="margin-top:16px">
+          <div class="bar-row">
+            <div class="bar-label">Thứ trong tuần</div>
+            <div class="bar-track"><div class="bar-fill" style="width:75%;background:#7C3AED">−0.578</div></div>
+            <div class="bar-val" style="color:#7C3AED">−0.578</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Tháng</div>
+            <div class="bar-track"><div class="bar-fill" style="width:62%;background:#2563EB">−0.511</div></div>
+            <div class="bar-val" style="color:#2563EB">−0.511</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Giờ tạo đơn</div>
+            <div class="bar-track"><div class="bar-fill" style="width:28%;background:#0891B2">−0.143</div></div>
+            <div class="bar-val" style="color:#0891B2">−0.143</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Nguồn đơn</div>
+            <div class="bar-track"><div class="bar-fill" style="width:4%;background:#D97706">+0.002</div></div>
+            <div class="bar-val" style="color:#D97706">+0.002</div>
+          </div>
+        </div>
+        <div class="insight" style="margin-top:16px">
+          <strong>Thứ trong tuần ảnh hưởng mạnh nhất (−0.578):</strong> Cuối tuần (Thứ 7, CN) xử lý nhanh hơn đầu tuần. Đầu tuần volume đơn cao + sale chưa vào guồng → rủi ro tăng mạnh.
+        </div>
+        <div class="insight warn">
+          <strong>Nguồn đơn ảnh hưởng rất ít (+0.002):</strong> Điều này có nghĩa vấn đề không nằm ở <em>loại đơn</em> mà nằm ở <em>quy trình xử lý nội bộ</em> và <em>thời điểm</em>.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Rủi ro vượt SLA theo thứ trong tuần</div>
+      <div class="card">
+        <div class="card-title">Xác suất vượt SLA (%) — đơn tạo lúc 10:00</div>
+        <div class="card-sub">Nguồn: Form liên hệ Website | Tháng 2</div>
+        <div id="weekday-chart"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Heatmap rủi ro: Nguồn đơn × Khung giờ</div>
+      <div class="card">
+        <div class="card-title">Xác suất vượt SLA (%) theo nguồn và giờ</div>
+        <div class="card-sub">Màu đỏ = nguy hiểm cao | Màu xanh = an toàn | Click ô để xem chi tiết</div>
+        <div class="heatmap-wrap" id="heatmap-container"></div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:12px;flex-wrap:wrap">
+          <span style="font-size:11px;color:var(--muted)">Thang màu:</span>
+          <div style="display:flex;gap:0">
+            <div style="width:24px;height:14px;background:#DCFCE7;border-radius:2px 0 0 2px"></div>
+            <div style="width:24px;height:14px;background:#FEF3C7"></div>
+            <div style="width:24px;height:14px;background:#FED7AA"></div>
+            <div style="width:24px;height:14px;background:#FCA5A5"></div>
+            <div style="width:24px;height:14px;background:#DC2626;border-radius:0 2px 2px 0"></div>
+          </div>
+          <span style="font-size:11px;color:var(--muted)">0% → 100%</span>
+        </div>
+        <div id="heatmap-tooltip" style="display:none;background:var(--navy);color:#fff;padding:8px 12px;border-radius:8px;font-size:12px;position:fixed;pointer-events:none;z-index:999"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ PAGE 3: PREDICTOR ══════════ -->
+<div class="page" id="page-predictor">
+  <div style="max-width:1000px;margin:0 auto;padding:32px 24px 60px">
+
+    <div class="hero-card" style="background:linear-gradient(135deg,#064E3B 0%,#065F46 60%,#047857 100%)">
+      <div class="hero-tag">Công cụ dự đoán</div>
+      <div class="hero-title">Nhập thông tin đơn → <span>Xem rủi ro ngay</span></div>
+      <div class="hero-desc">Dựa trên mô hình hồi quy logistic, tính xác suất đơn sẽ vượt SLA trước khi sale bắt đầu xử lý.</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Nhập thông tin đơn</div>
+      <div class="predictor">
+        <h3>⚡ Dự đoán xác suất vượt SLA</h3>
+        <div class="pred-controls">
+          <select class="pred-select" id="p-source" onchange="predict()">
+            <option value="0">Form liên hệ Website</option>
+            <option value="1">Form 200K</option>
+            <option value="2">GG New Lead Form</option>
+            <option value="3">ĐH COD</option>
+            <option value="4">ĐH BankOnline</option>
+            <option value="5">ĐH TG</option>
+            <option value="6">Dunlopillo</option>
+            <option value="7">TCĐM-Ý</option>
+            <option value="8">Web TTN-Ý</option>
+            <option value="9">Lì Xì Tết 2026</option>
+          </select>
+          <select class="pred-select" id="p-hour" onchange="predict()">
+            <option value="8">08:00</option><option value="9">09:00</option>
+            <option value="10" selected>10:00</option><option value="11">11:00</option>
+            <option value="12">12:00</option><option value="13">13:00</option>
+            <option value="14">14:00</option><option value="15">15:00</option>
+            <option value="16">16:00</option><option value="17">17:00</option>
+            <option value="18">18:00</option><option value="19">19:00</option>
+            <option value="20">20:00</option><option value="21">21:00</option>
+          </select>
+          <select class="pred-select" id="p-weekday" onchange="predict()">
+            <option value="0">Thứ 2</option><option value="1">Thứ 3</option>
+            <option value="2" selected>Thứ 4</option><option value="3">Thứ 5</option>
+            <option value="4">Thứ 6</option><option value="5">Thứ 7</option>
+            <option value="6">Chủ nhật</option>
+          </select>
+          <select class="pred-select" id="p-month" onchange="predict()">
+            <option value="1">Tháng 1</option><option value="2" selected>Tháng 2</option>
+            <option value="3">Tháng 3</option><option value="4">Tháng 4</option>
+            <option value="5">Tháng 5</option><option value="6">Tháng 6</option>
+          </select>
+        </div>
+        <div class="pred-result" id="pred-result">
+          <svg class="pred-gauge" id="pred-gauge" viewBox="0 0 80 80"></svg>
+          <div class="pred-text">
+            <div class="prob" id="pred-prob">—</div>
+            <div class="label">xác suất vượt SLA</div>
+            <div class="advice" id="pred-advice"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">So sánh rủi ro theo nguồn đơn</div>
+      <div class="card">
+        <div class="card-title">Rủi ro trung bình (giờ hành chính, thứ 4, T2)</div>
+        <div class="card-sub">Model risk = dự đoán | Actual = thực tế từ dữ liệu</div>
+        <div id="source-risk-chart" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Ứng dụng thực tế cho quản lý sale</div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🎯 Cách dùng mô hình</div>
+          <ul style="font-size:13px;line-height:2;color:var(--muted);margin-left:16px">
+            <li>Đơn rủi ro cao (>80%) → Assign cho sale senior</li>
+            <li>Đầu tuần (T2–T3) → Tăng cường nhân sự</li>
+            <li>Form 200K → Cần quy trình riêng</li>
+            <li>Dunlopillo, Web TTN-Ý → Review lại SLA</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">📈 Giới hạn mô hình</div>
+          <ul style="font-size:13px;line-height:2;color:var(--muted);margin-left:16px">
+            <li>Accuracy 77.8% — không dự đoán 100%</li>
+            <li>Cần retrain khi có thêm dữ liệu mới</li>
+            <li>Không tính yếu tố ngày lễ, sự kiện</li>
+            <li>Volume đơn lớn → cần thêm feature</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══════════ DATA ══════════
+const DATA = {
+  monthly_months:[1,2,3],
+  monthly_actual:[44,58,13],
+  future_months:[4,5,6],
+  future_pred:[7,0,0],
+  slope:-15.5, intercept:69.3, r2:0.453,
+  weekday_probs:[97.1,95.0,91.6,86.2,78.2,67.2,54.0],
+  weekday_names:['T2','T3','T4','T5','T6','T7','CN'],
+  sources:['Dunlopillo','Form 200K','Form liên hệ Website','GG New Lead Form','Lì Xì Tết 2026','TCĐM-Ý','Web TTN-Ý','ĐH BankOnline','ĐH COD','ĐH TG'],
+  // Logistic model params (intercept + coefs for source_enc, hour, weekday, month)
+  log_intercept: 3.82,
+  log_coefs: [0.002, -0.143, -0.578, -0.511],
+  source_risk:[
+    {source:'ĐH TG',model_risk:88.1,actual_breach:77.3},
+    {source:'ĐH COD',model_risk:87.9,actual_breach:71.8},
+    {source:'ĐH BankOnline',model_risk:87.7,actual_breach:80.0},
+    {source:'Web TTN-Ý',model_risk:87.5,actual_breach:100.0},
+    {source:'TCĐM-Ý',model_risk:87.3,actual_breach:50.0},
+    {source:'Lì Xì Tết 2026',model_risk:87.2,actual_breach:74.0},
+    {source:'GG New Lead Form',model_risk:87.0,actual_breach:66.3},
+    {source:'Form liên hệ Website',model_risk:86.8,actual_breach:66.5},
+    {source:'Form 200K',model_risk:86.6,actual_breach:84.2},
+    {source:'Dunlopillo',model_risk:86.4,actual_breach:100.0},
+  ],
+  // Heatmap: source x hour (8..21) — simplified from model
+  heatmap_hours:[8,9,10,11,12,13,14,15,16,17,18,19,20,21],
+};
+
+// Source risk by hour (approximate from logistic model for display)
+function getRisk(srcIdx, hour, weekday, month) {
+  const z = DATA.log_intercept + DATA.log_coefs[0]*srcIdx + DATA.log_coefs[1]*hour + DATA.log_coefs[2]*weekday + DATA.log_coefs[3]*month;
+  return Math.round(1/(1+Math.exp(-z))*100*10)/10;
+}
+
+// Color for risk value
+function riskColor(v) {
+  if(v<30) return '#DCFCE7';
+  if(v<50) return '#FEF3C7';
+  if(v<70) return '#FED7AA';
+  if(v<85) return '#FCA5A5';
+  return '#EF4444';
+}
+function riskTextColor(v) {
+  if(v<30) return '#166534';
+  if(v<50) return '#92400E';
+  if(v<70) return '#7C2D12';
+  return '#7F1D1D';
+}
+
+// ══════════ LINEAR CHART ══════════
+function drawLinearChart() {
+  const svg = document.getElementById('linear-svg');
+  const W=700,H=260,padL=52,padR=20,padT=20,padB=44;
+  const cW=W-padL-padR, cH=H-padT-padB;
+
+  const allMonths=[...DATA.monthly_months,...DATA.future_months];
+  const allVals=[...DATA.monthly_actual,...DATA.future_pred,70];
+  const maxY=Math.max(...allVals,70);
+  const minY=0;
+
+  const xScale=i=>(i/(allMonths.length-1+1))*cW;
+  const yScale=v=>cH-(v-minY)/(maxY-minY)*cH;
+  const barW=cW/(allMonths.length+2)*0.6;
+
+  let html=`<g transform="translate(${padL},${padT})">`;
+
+  // Grid lines
+  for(let i=0;i<=4;i++){
+    const y=cH-i/4*cH;
+    const val=Math.round(minY+(maxY-minY)*i/4);
+    html+=`<line x1="0" y1="${y}" x2="${cW}" y2="${y}" stroke="#E2E8F0" stroke-width="1"/>`;
+    html+=`<text x="-8" y="${y+4}" text-anchor="end" font-size="10" fill="#94A3B8" font-family="Be Vietnam Pro">${val}</text>`;
+  }
+  // SLA target line at 5
+  const slaY=yScale(5);
+  html+=`<line x1="0" y1="${slaY}" x2="${cW}" y2="${slaY}" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  html+=`<text x="${cW+4}" y="${slaY+4}" font-size="9" fill="#059669" font-family="Be Vietnam Pro">SLA=5p</text>`;
+
+  // Bars actual
+  DATA.monthly_months.forEach((m,i)=>{
+    const xi=padL+(i+0.5)/(allMonths.length+1)*cW;
+    const x=xi-barW/2-padL;
+    const v=DATA.monthly_actual[i];
+    const bh=(v-minY)/(maxY-minY)*cH;
+    const by=cH-bh;
+    html+=`<rect x="${x}" y="${by}" width="${barW}" height="${bh}" rx="4" fill="#3B82F6" opacity="0.85"/>`;
+    html+=`<text x="${x+barW/2}" y="${by-5}" text-anchor="middle" font-size="11" fill="#2563EB" font-weight="600" font-family="Be Vietnam Pro">${v}p</text>`;
+    html+=`<text x="${x+barW/2}" y="${cH+16}" text-anchor="middle" font-size="11" fill="#64748B" font-family="Be Vietnam Pro">T${m}</text>`;
+  });
+
+  // Bars future
+  DATA.future_months.forEach((m,i)=>{
+    const xi=padL+(i+DATA.monthly_months.length+0.5)/(allMonths.length+1)*cW;
+    const x=xi-barW/2-padL;
+    const v=Math.max(DATA.future_pred[i],2);
+    const bh=(v-minY)/(maxY-minY)*cH;
+    const by=cH-bh;
+    html+=`<rect x="${x}" y="${by}" width="${barW}" height="${bh}" rx="4" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5"/>`;
+    const label=DATA.future_pred[i]<=0?'≈0p':`${DATA.future_pred[i]}p`;
+    html+=`<text x="${x+barW/2}" y="${by-5}" text-anchor="middle" font-size="11" fill="#D97706" font-weight="600" font-family="Be Vietnam Pro">${label}</text>`;
+    html+=`<text x="${x+barW/2}" y="${cH+16}" text-anchor="middle" font-size="11" fill="#64748B" font-family="Be Vietnam Pro">T${m}</text>`;
+    html+=`<text x="${x+barW/2}" y="${cH+28}" text-anchor="middle" font-size="9" fill="#D97706" font-family="Be Vietnam Pro">dự báo</text>`;
+  });
+
+  // Regression line through all months
+  const linePoints=allMonths.map((m,i)=>{
+    const xi=(i+0.5)/(allMonths.length+1)*cW;
+    const pred=Math.max(0,DATA.slope*m+DATA.intercept);
+    const y=yScale(pred);
+    return {x:xi,y,m,pred};
+  });
+
+  // Actual line
+  const actualPts=DATA.monthly_months.map((m,i)=>{
+    const xi=(i+0.5)/(allMonths.length+1)*cW;
+    return `${xi},${yScale(DATA.monthly_actual[i])}`;
+  }).join(' ');
+  html+=`<polyline points="${actualPts}" stroke="#EF4444" stroke-width="2.5" fill="none"/>`;
+
+  // Extension dashed
+  const lastActualX=(DATA.monthly_months.length-0.5)/(allMonths.length+1)*cW;
+  const lastActualY=yScale(DATA.monthly_actual[DATA.monthly_months.length-1]);
+  const firstFutureX=(DATA.monthly_months.length+0.5)/(allMonths.length+1)*cW;
+  const firstFutureY=yScale(Math.max(0,DATA.future_pred[0]));
+  html+=`<line x1="${lastActualX}" y1="${lastActualY}" x2="${firstFutureX}" y2="${firstFutureY}" stroke="#EF4444" stroke-width="2" stroke-dasharray="5,4"/>`;
+
+  // Dots
+  DATA.monthly_months.forEach((m,i)=>{
+    const xi=(i+0.5)/(allMonths.length+1)*cW;
+    html+=`<circle cx="${xi}" cy="${yScale(DATA.monthly_actual[i])}" r="5" fill="#EF4444" stroke="#fff" stroke-width="2"/>`;
+  });
+  DATA.future_months.forEach((m,i)=>{
+    const xi=(i+DATA.monthly_months.length+0.5)/(allMonths.length+1)*cW;
+    html+=`<circle cx="${xi}" cy="${yScale(Math.max(0,DATA.future_pred[i]))}" r="5" fill="#D97706" stroke="#fff" stroke-width="2"/>`;
+  });
+
+  html+='</g>';
+  svg.innerHTML=html;
+}
+
+// ══════════ WEEKDAY CHART ══════════
+function drawWeekdayChart() {
+  const c = document.getElementById('weekday-chart');
+  const max=Math.max(...DATA.weekday_probs);
+  let html='<div style="display:flex;gap:10px;align-items:flex-end;height:130px;margin:12px 0">';
+  DATA.weekday_probs.forEach((v,i)=>{
+    const h=Math.round(v/max*100);
+    const col=v>85?'#EF4444':v>70?'#F97316':v>55?'#EAB308':'#22C55E';
+    html+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end">
+      <span style="font-size:11px;font-weight:700;color:${col}">${v}%</span>
+      <div style="width:100%;height:${h}%;background:${col};border-radius:4px 4px 0 0;min-height:4px"></div>
+      <span style="font-size:11px;color:var(--muted);font-weight:600">${DATA.weekday_names[i]}</span>
+    </div>`;
+  });
+  html+='</div>';
+  html+='<div style="font-size:12px;color:var(--muted);margin-top:4px">💡 Thứ 2 nguy hiểm nhất (97.1%) — Thứ 7 & CN an toàn hơn đáng kể</div>';
+  c.innerHTML=html;
+}
+
+// ══════════ HEATMAP ══════════
+function drawHeatmap() {
+  const hours=DATA.heatmap_hours;
+  const sources=DATA.sources.slice(0,8); // top 8 for display
+  const container=document.getElementById('heatmap-container');
+  let html='<table class="heatmap-table"><tr><th>Nguồn đơn</th>';
+  hours.forEach(h=>{ html+=`<th>${h}h</th>`; });
+  html+='</tr>';
+  sources.forEach((src,si)=>{
+    html+=`<tr><td>${src}</td>`;
+    hours.forEach(h=>{
+      const v=getRisk(si,h,1,2); // weekday=T3, month=2
+      const bg=riskColor(v);
+      const tc=riskTextColor(v);
+      html+=`<td style="background:${bg};color:${tc}" 
+        onmouseenter="showTooltip(event,'${src}',${h},${v})"
+        onmouseleave="hideTooltip()">${Math.round(v)}%</td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</table>';
+  container.innerHTML=html;
+}
+
+function showTooltip(e, src, hour, prob) {
+  const t=document.getElementById('heatmap-tooltip');
+  t.style.display='block';
+  t.style.left=(e.clientX+12)+'px';
+  t.style.top=(e.clientY-10)+'px';
+  const lvl=prob>=85?'🔴 Rất cao':prob>=70?'🟠 Cao':prob>=50?'🟡 Trung bình':'🟢 Thấp';
+  t.innerHTML=`<strong>${src}</strong><br>${hour}:00 — Xác suất vượt SLA: <strong>${prob.toFixed(1)}%</strong><br>${lvl}`;
+}
+function hideTooltip(){document.getElementById('heatmap-tooltip').style.display='none';}
+
+// ══════════ SOURCE RISK CHART ══════════
+function drawSourceRisk() {
+  const c=document.getElementById('source-risk-chart');
+  let html='<div style="display:flex;flex-direction:column;gap:10px">';
+  DATA.source_risk.forEach(s=>{
+    const col=s.actual_breach>=80?'#EF4444':s.actual_breach>=60?'#F97316':'#EAB308';
+    html+=`<div style="display:flex;align-items:center;gap:10px">
+      <div style="width:150px;font-size:12px;text-align:right;color:var(--text)">${s.source}</div>
+      <div style="flex:1;position:relative;height:22px;background:#F1F5F9;border-radius:6px;overflow:hidden">
+        <div style="position:absolute;left:0;top:0;height:100%;width:${s.actual_breach}%;background:${col};border-radius:6px;opacity:0.3"></div>
+        <div style="position:absolute;left:0;top:0;height:100%;width:${s.model_risk}%;background:${col};border-radius:6px;border:2px dashed ${col};background:transparent"></div>
+        <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:${col}">Thực tế: ${s.actual_breach}% | Model: ${s.model_risk}%</span>
+      </div>
+    </div>`;
+  });
+  html+='</div>';
+  c.innerHTML=html;
+}
+
+// ══════════ PREDICTOR ══════════
+function drawGauge(prob) {
+  const svg=document.getElementById('pred-gauge');
+  const r=32, cx=40, cy=42;
+  const angle=(prob/100)*Math.PI;
+  const x=cx+r*Math.cos(Math.PI-angle), y=cy-r*Math.sin(Math.PI-angle);
+  const col=prob>=80?'#DC2626':prob>=60?'#F97316':prob>=40?'#EAB308':'#22C55E';
+  svg.innerHTML=`
+    <path d="M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy}" stroke="#E2E8F0" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${x} ${y}" stroke="${col}" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <circle cx="${x}" cy="${y}" r="5" fill="${col}" stroke="#fff" stroke-width="2"/>
+  `;
+}
+
+function predict() {
+  const srcIdx=parseInt(document.getElementById('p-source').value);
+  const hour=parseInt(document.getElementById('p-hour').value);
+  const wd=parseInt(document.getElementById('p-weekday').value);
+  const month=parseInt(document.getElementById('p-month').value);
+  const prob=getRisk(srcIdx,hour,wd,month);
+  const probEl=document.getElementById('pred-prob');
+  const advEl=document.getElementById('pred-advice');
+  probEl.textContent=prob.toFixed(1)+'%';
+  let advice='',advBg='',advColor='';
+  if(prob>=85){
+    advice='🔴 Rủi ro rất cao — Ưu tiên xử lý ngay, assign sale senior';
+    advBg='#FEE2E2';advColor='#991B1B';
+    probEl.style.color='#DC2626';
+  } else if(prob>=70){
+    advice='🟠 Rủi ro cao — Theo dõi sát, đặt reminder 3 phút';
+    advBg='#FEF3C7';advColor='#92400E';
+    probEl.style.color='#D97706';
+  } else if(prob>=50){
+    advice='🟡 Rủi ro trung bình — Xử lý trong vòng 5 phút tiêu chuẩn';
+    advBg='#FEF9C3';advColor='#713F12';
+    probEl.style.color='#CA8A04';
+  } else {
+    advice='🟢 Rủi ro thấp — Khả năng cao xử lý đúng SLA';
+    advBg='#DCFCE7';advColor='#166534';
+    probEl.style.color='#16A34A';
+  }
+  advEl.textContent=advice;
+  advEl.style.background=advBg;
+  advEl.style.color=advColor;
+  drawGauge(prob);
+}
+
+// ══════════ TAB SWITCH ══════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+  document.getElementById(`page-${tab}`).classList.add('active');
+}
+
+// ══════════ INIT ══════════
+drawLinearChart();
+drawWeekdayChart();
+drawHeatmap();
+drawSourceRisk();
+predict();
+</script>
+</body>
+</html>
