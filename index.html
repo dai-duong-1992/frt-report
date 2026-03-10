@@ -62,7 +62,7 @@ canvas{max-height:280px}
   <div class="tab active" onclick="switchTab('overview')">Tổng quan</div>
   <div class="tab" onclick="switchTab('regression')">Hồi quy</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 10/03/2026 14:38</div>
+  <div class="timestamp">🕐 Cập nhật: 10/03/2026 14:57</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -211,6 +211,19 @@ canvas{max-height:280px}
     <div class="hero-tag">Hồi quy logistic</div>
     <h1>Dự đoán <span>rủi ro vượt SLA</span> ngay lập tức</h1>
     <p>Chọn thông tin đơn → xem xác suất và khuyến nghị hành động.</p>
+  </div>
+
+  <div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start">
+    <span style="font-size:20px;flex-shrink:0">⚠️</span>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:#92400E;margin-bottom:4px">Lưu ý về mô hình dự đoán</div>
+      <div style="font-size:12px;color:#92400E;line-height:1.7">
+        Hệ số logistic (<code style="background:#FDE68A;padding:1px 5px;border-radius:3px;font-family:monospace">intercept=3.82, coefs=[0.002, -0.143, -0.578, -0.511]</code>) được tính 
+        <strong>một lần duy nhất</strong> từ dữ liệu ban đầu và <strong>không tự cập nhật</strong> khi có đơn mới.<br>
+        Chỉ số SLA% thực tế ở tab <strong>Tổng quan</strong> mới là số liệu cập nhật hàng ngày.
+        Mô hình này dùng để <strong>phân tích xu hướng định tính</strong>, không dùng để ra quyết định tuyệt đối.
+      </div>
+    </div>
   </div>
 
   <div class="pred-wrap">
