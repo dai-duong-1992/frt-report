@@ -63,7 +63,7 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Hồi quy logistic</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 10/03/2026 15:57</div>
+  <div class="timestamp">🕐 Cập nhật: 10/03/2026 16:04</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -259,9 +259,11 @@ canvas{max-height:280px}
 
   <div class="section-label">Rủi ro theo thứ trong tuần</div>
   <div class="card">
-    <div class="card-title">Xác suất vượt SLA (%) theo thứ</div>
-    <div class="card-sub">Đơn tạo lúc 10:00 sáng, Tháng 2</div>
-    <canvas id="chartWeekday" style="max-height:200px"></canvas>
+    <div class="card-title">So sánh xác suất vượt SLA (%) theo thứ — giữa các tháng</div>
+    <div class="card-sub">Đơn tạo lúc 10:00 sáng | Chọn tháng muốn so sánh bên dưới</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;margin-top:10px" id="month-toggles"></div>
+    <canvas id="chartWeekday" style="max-height:240px"></canvas>
+    <div class="insight" style="margin-top:12px">Mỗi đường = 1 tháng. <strong>Đường nằm cao = tháng đó rủi ro cao hơn.</strong> Khoảng cách giữa các đường cho thấy mức độ cải thiện theo thời gian.</div>
   </div>
 
   <div class="section-label">Heatmap rủi ro: Nguồn × Giờ</div>
@@ -446,23 +448,72 @@ function predict(){
   drawGauge(prob);
 }
 
-// ── WEEKDAY CHART ──
+// ── WEEKDAY MULTI-MONTH CHART ──
 const WD_NAMES=['T2','T3','T4','T5','T6','T7','CN'];
-const WD_PROBS=WD_NAMES.map((_,i)=>Math.round(sigmoid(3.82+0.002*2-0.143*10-0.578*i-0.511*2)*1000)/10);
-new Chart(document.getElementById('chartWeekday'),{
-  type:'bar',
-  data:{
-    labels:WD_NAMES,
-    datasets:[{
-      label:'Xac suat vuot SLA (%)',
-      data:WD_PROBS,
-      backgroundColor:WD_PROBS.map(v=>riskColor(v)),
-      borderRadius:6,
-    }]
-  },
-  options:{responsive:true,scales:{y:{beginAtZero:true,max:100,title:{display:true,text:'%'}}},
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw+'% xac suat vuot SLA'}}}}}
+const MONTH_COLORS=['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#06B6D4'];
+const MONTH_LABELS=['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6'];
+
+// Tính data cho tất cả tháng (giờ 10:00)
+const allMonthData=MONTH_LABELS.map(function(_,mi){
+  return WD_NAMES.map(function(_,wi){
+    return Math.round(sigmoid(3.82+0.002*2-0.143*10-0.578*wi-0.511*(mi+1))*1000)/10;
+  });
 });
+
+// Các tháng có data thực (từ ACT_MONTHS)
+const activeMonthNums=ACT_MONTHS.map(function(m){return parseInt(m.replace("'T","").replace("'",""));});
+
+const wdDatasets=MONTH_LABELS.map(function(label,mi){
+  return {
+    label:label,
+    data:allMonthData[mi],
+    borderColor:MONTH_COLORS[mi],
+    backgroundColor:MONTH_COLORS[mi]+'33',
+    borderWidth:2.5,
+    pointRadius:5,
+    pointHoverRadius:7,
+    tension:0.3,
+    fill:false,
+    hidden: activeMonthNums.indexOf(mi+1)===-1,
+  };
+});
+
+const wdChart=new Chart(document.getElementById('chartWeekday'),{
+  type:'line',
+  data:{labels:WD_NAMES, datasets:wdDatasets},
+  options:{
+    responsive:true,
+    scales:{y:{beginAtZero:true,max:100,title:{display:true,text:'Xác suất vượt SLA (%)'},ticks:{callback:function(v){return v+'%'}}}},
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.raw+'%'}}}
+    }
+  }
+});
+
+// Tạo toggle buttons
+(function(){
+  const wrap=document.getElementById('month-toggles');
+  if(!wrap) return;
+  MONTH_LABELS.forEach(function(label,mi){
+    const btn=document.createElement('button');
+    const isActive=activeMonthNums.indexOf(mi+1)!==-1;
+    btn.textContent=label;
+    btn.style.cssText='padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid '+MONTH_COLORS[mi]+';transition:.2s;font-family:inherit;';
+    btn.style.background=isActive?MONTH_COLORS[mi]:'transparent';
+    btn.style.color=isActive?'#fff':MONTH_COLORS[mi];
+    btn.dataset.active=isActive?'1':'0';
+    btn.onclick=function(){
+      const active=btn.dataset.active==='1';
+      wdChart.data.datasets[mi].hidden=active;
+      btn.dataset.active=active?'0':'1';
+      btn.style.background=active?'transparent':MONTH_COLORS[mi];
+      btn.style.color=active?MONTH_COLORS[mi]:'#fff';
+      wdChart.update();
+    };
+    wrap.appendChild(btn);
+  });
+})();
 
 // ── HEATMAP ──
 (function(){
