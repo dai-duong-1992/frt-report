@@ -63,23 +63,23 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Hồi quy logistic</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 10/03/2026 19:09</div>
+  <div class="timestamp">🕐 Cập nhật: 10/03/2026 19:25</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
 <div class="page active" id="page-overview">
   <div class="hero">
     <div class="hero-tag">Sale Tracking — FRT Report</div>
-    <h1>Tỷ lệ SLA toàn hệ thống: <span style="color:#DC2626">27.9%</span></h1>
-    <p>Phân tích 1000 đơn có FRT — tự động cập nhật mỗi 15 phút (8:00–22:00).</p>
+    <h1>Tỷ lệ SLA toàn hệ thống: <span style="color:#DC2626">28.1%</span></h1>
+    <p>Phân tích 1003 đơn có FRT — tự động cập nhật mỗi 15 phút (8:00–22:00).</p>
   </div>
 
   <div class="kpi-grid">
-    <div class="kpi"><div class="v" style="color:var(--blue)">1,000</div><div class="l">Tổng đơn FRT</div></div>
-    <div class="kpi"><div class="v" style="color:var(--green)">279</div><div class="l">Đúng hạn SLA</div></div>
+    <div class="kpi"><div class="v" style="color:var(--blue)">1,003</div><div class="l">Tổng đơn FRT</div></div>
+    <div class="kpi"><div class="v" style="color:var(--green)">282</div><div class="l">Đúng hạn SLA</div></div>
     <div class="kpi"><div class="v" style="color:var(--red)">721</div><div class="l">Vượt SLA</div></div>
-    <div class="kpi"><div class="v" style="color:#DC2626">27.9%</div><div class="l">Tỷ lệ SLA</div></div>
-    <div class="kpi"><div class="v" style="color:var(--orange)">10h 43p</div><div class="l">Avg FRT</div></div>
+    <div class="kpi"><div class="v" style="color:#DC2626">28.1%</div><div class="l">Tỷ lệ SLA</div></div>
+    <div class="kpi"><div class="v" style="color:var(--orange)">10h 41p</div><div class="l">Avg FRT</div></div>
     <div class="kpi"><div class="v" style="color:var(--blue)">53 phút</div><div class="l">Median FRT</div></div>
   </div>
 
@@ -98,9 +98,9 @@ canvas{max-height:280px}
         <td>12h 14p</td><td>1h 1p</td>
         <td><span class="badge bo">🟡 TB</span></td>
       </tr><tr>
-        <td>Tháng 3</td><td>254</td><td>86</td><td>168</td>
-        <td><strong style="color:#D97706">33.9%</strong></td>
-        <td>7h 27p</td><td>43 phút</td>
+        <td>Tháng 3</td><td>255</td><td>87</td><td>168</td>
+        <td><strong style="color:#D97706">34.1%</strong></td>
+        <td>7h 25p</td><td>41 phút</td>
         <td><span class="badge bo">🟡 TB</span></td>
       </tr>
     </table>
@@ -126,13 +126,13 @@ canvas{max-height:280px}
           <td><span class="badge bg">🏆</span></td>
         </tr><tr>
           <td style="font-size:11px">GG New Lead Form</td>
-          <td><strong style="color:#D97706">34.8%</strong></td>
-          <td>39/112</td>
-          <td><span class="badge bo">🟡</span></td>
+          <td><strong style="color:#D97706">35.4%</strong></td>
+          <td>40/113</td>
+          <td><span class="badge bo">🟢</span></td>
         </tr><tr>
           <td style="font-size:11px">Form liên hệ Website</td>
-          <td><strong style="color:#D97706">31.8%</strong></td>
-          <td>114/359</td>
+          <td><strong style="color:#D97706">32.1%</strong></td>
+          <td>116/361</td>
           <td><span class="badge bo">🟡</span></td>
         </tr><tr>
           <td style="font-size:11px">ĐH COD</td>
@@ -179,23 +179,23 @@ canvas{max-height:280px}
 <div class="page" id="page-regression">
   <div class="hero" style="background:linear-gradient(135deg,#1E1B4B 0%,#3730A3 100%)">
     <div class="hero-tag">Hồi quy tuyến tính</div>
-    <h1>Xu hướng FRT: <span style="color:#16A34A">▼ 0.5 phút/tháng — đang cải thiện</span></h1>
-    <p>Mô hình tự tính lại mỗi ngày khi có dữ liệu mới. R² = 0.002 — độ khớp 0%.</p>
+    <h1>Xu hướng FRT: <span style="color:#16A34A">▼ 1.5 phút/tháng — đang cải thiện</span></h1>
+    <p>Mô hình tự tính lại mỗi ngày khi có dữ liệu mới. R² = 0.019 — độ khớp 2%.</p>
   </div>
 
   <div class="section-label">Công thức mô hình</div>
   <div class="card">
     <div class="formula-box">
 <span class="c">// y = a·x + b  (tự tính từ dữ liệu thực tế)</span>
-<br><span class="h">Median FRT</span> = <span class="r">-0.5</span> × Tháng + <span class="r">50.3</span>
+<br><span class="h">Median FRT</span> = <span class="r">-1.5</span> × Tháng + <span class="r">51.7</span>
 <br>
 <br><span class="c">// Dự báo 3 tháng tới:</span>
-<br>T4: -0.5 × 4 + 50.3 = <span class="r">48 phút</span><br>T5: -0.5 × 5 + 50.3 = <span class="r">48 phút</span><br>T6: -0.5 × 6 + 50.3 = <span class="r">47 phút</span>
+<br>T4: -1.5 × 4 + 51.7 = <span class="r">46 phút</span><br>T5: -1.5 × 5 + 51.7 = <span class="r">44 phút</span><br>T6: -1.5 × 6 + 51.7 = <span class="r">43 phút</span>
     </div>
     <div class="insight good">
-      <strong>📈 Xu hướng tốt:</strong> Mỗi tháng Median FRT giảm 0.5 phút. Nếu duy trì, T5 có thể đạt SLA target 5 phút.
+      <strong>📈 Xu hướng tốt:</strong> Mỗi tháng Median FRT giảm 1.5 phút. Nếu duy trì, T5 có thể đạt SLA target 5 phút.
     </div>
-    <div class="insight warn"><strong>R² = 0.002:</strong> Mô hình giải thích 0% biến động. Dự báo mang tính định hướng — phụ thuộc vào volume đơn và nhân sự.</div>
+    <div class="insight warn"><strong>R² = 0.019:</strong> Mô hình giải thích 2% biến động. Dự báo mang tính định hướng — phụ thuộc vào volume đơn và nhân sự.</div>
   </div>
 
   <div class="section-label">Biểu đồ xu hướng & dự báo</div>
@@ -345,15 +345,15 @@ canvas{max-height:280px}
 <script>
 // ── DATA ──
 const SRC_LABELS=['TCĐM-Ý' ,'Popup 8.3' ,'GG New Lead Form' ,'Form liên hệ Website' ,'ĐH COD' ,'Lì Xì Tết 2026' ,'ĐH TG' ,'ĐH Bank/Online' ,'Form 200K' ,'Web TTN-Ý' ,'Dunlopillo' ];
-const SRC_RATES=[50,50,34.8,31.8,27.6,27.5,22.7,19.6,15.8,0,0];
-const SRC_PASSES=[2,1,39,114,74,19,5,9,16,0,0];
+const SRC_RATES=[50,50,35.4,32.1,27.6,27.5,22.7,19.6,15.8,0,0];
+const SRC_PASSES=[2,1,40,116,74,19,5,9,16,0,0];
 const SRC_FAILS=[2,1,73,245,194,50,17,37,85,6,11];
 const ACT_MONTHS=['T1','T2','T3'];
-const ACT_VALUES=[44,61,43];
+const ACT_VALUES=[44,61,41];
 const FUT_MONTHS=['T4','T5','T6'];
-const FUT_VALUES=[48,48,47];
-const SLOPE=-0.5;
-const INTERCEPT=50.3;
+const FUT_VALUES=[46,44,43];
+const SLOPE=-1.5;
+const INTERCEPT=51.7;
 
 // ── UTILS ──
 function sigmoid(z){return 1/(1+Math.exp(-z))}
