@@ -63,7 +63,7 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Hồi quy logistic</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 10/03/2026 15:45</div>
+  <div class="timestamp">🕐 Cập nhật: 10/03/2026 15:47</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -446,8 +446,6 @@ function predict(){
   drawGauge(prob);
 }
 
-// ── TABS ──
-function switchTab(t){
 // ── WEEKDAY CHART ──
 const WD_NAMES=['T2','T3','T4','T5','T6','T7','CN'];
 const WD_PROBS=WD_NAMES.map((_,i)=>Math.round(sigmoid(3.82+0.002*2-0.143*10-0.578*i-0.511*2)*1000)/10);
@@ -456,7 +454,7 @@ new Chart(document.getElementById('chartWeekday'),{
   data:{
     labels:WD_NAMES,
     datasets:[{
-      label:'Xác suất vượt SLA (%)',
+      label:'Xac suat vuot SLA (%)',
       data:WD_PROBS,
       backgroundColor:WD_PROBS.map(v=>riskColor(v)),
       borderRadius:6,
@@ -480,7 +478,7 @@ new Chart(document.getElementById('chartWeekday'),{
     html+='<tr><td style="padding:5px 10px;font-size:11px;white-space:nowrap;border-bottom:1px solid #E2E8F0">'+src+'</td>';
     hours.forEach(function(h){
       const v=risk(si,h,1,2);
-      html+='<td style="background:'+heatBg(v)+';color:'+heatFg(v)+';padding:5px 4px;text-align:center;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.4)" title="'+src+' | '+h+':00 -> '+v+'%">'+Math.round(v)+'%</td>';
+      html+='<td style="background:'+heatBg(v)+';color:'+heatFg(v)+';padding:5px 4px;text-align:center;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.4)">'+Math.round(v)+'%</td>';
     });
     html+='</tr>';
   });
@@ -489,9 +487,11 @@ new Chart(document.getElementById('chartWeekday'),{
 
 // ── TABS ──
 function switchTab(t){
-  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
-  document.querySelector('[onclick="switchTab(\''+t+'\')"]').classList.add('active');
+  document.querySelectorAll('.tab').forEach(function(el){el.classList.remove('active');});
+  document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(el){
+    if(el.getAttribute('onclick')==="switchTab('"+t+"')") el.classList.add('active');
+  });
   document.getElementById('page-'+t).classList.add('active');
 }
 
