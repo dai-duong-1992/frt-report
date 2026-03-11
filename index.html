@@ -63,23 +63,23 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Hồi quy logistic</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 11/03/2026 18:33</div>
+  <div class="timestamp">🕐 Cập nhật: 11/03/2026 18:48</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
 <div class="page active" id="page-overview">
   <div class="hero">
     <div class="hero-tag">Sale Tracking — FRT Report</div>
-    <h1>Tỷ lệ SLA toàn hệ thống: <span style="color:#DC2626">28.4%</span></h1>
-    <p>Phân tích 1016 đơn có FRT — tự động cập nhật mỗi 15 phút (8:00–22:00).</p>
+    <h1>Tỷ lệ SLA toàn hệ thống: <span style="color:#DC2626">28.6%</span></h1>
+    <p>Phân tích 1018 đơn có FRT — tự động cập nhật mỗi 15 phút (8:00–22:00).</p>
   </div>
 
   <div class="kpi-grid">
-    <div class="kpi"><div class="v" style="color:var(--blue)">1,016</div><div class="l">Tổng đơn FRT</div></div>
-    <div class="kpi"><div class="v" style="color:var(--green)">289</div><div class="l">Đúng hạn SLA</div></div>
+    <div class="kpi"><div class="v" style="color:var(--blue)">1,018</div><div class="l">Tổng đơn FRT</div></div>
+    <div class="kpi"><div class="v" style="color:var(--green)">291</div><div class="l">Đúng hạn SLA</div></div>
     <div class="kpi"><div class="v" style="color:var(--red)">727</div><div class="l">Vượt SLA</div></div>
-    <div class="kpi"><div class="v" style="color:#DC2626">28.4%</div><div class="l">Tỷ lệ SLA</div></div>
-    <div class="kpi"><div class="v" style="color:var(--orange)">10h 33p</div><div class="l">Avg FRT</div></div>
+    <div class="kpi"><div class="v" style="color:#DC2626">28.6%</div><div class="l">Tỷ lệ SLA</div></div>
+    <div class="kpi"><div class="v" style="color:var(--orange)">10h 32p</div><div class="l">Avg FRT</div></div>
     <div class="kpi"><div class="v" style="color:var(--blue)">52 phút</div><div class="l">Median FRT</div></div>
   </div>
 
@@ -98,9 +98,9 @@ canvas{max-height:280px}
         <td>12h 14p</td><td>1h 1p</td>
         <td><span class="badge bo">🟡 TB</span></td>
       </tr><tr>
-        <td>Tháng 3</td><td>259</td><td>89</td><td>170</td>
-        <td><strong style="color:#D97706">34.4%</strong></td>
-        <td>7h 18p</td><td>39 phút</td>
+        <td>Tháng 3</td><td>260</td><td>90</td><td>170</td>
+        <td><strong style="color:#D97706">34.6%</strong></td>
+        <td>7h 17p</td><td>39 phút</td>
         <td><span class="badge bo">🟡 TB</span></td>
       </tr>
     </table>
@@ -131,13 +131,13 @@ canvas{max-height:280px}
           <td><span class="badge bo">🟢</span></td>
         </tr><tr>
           <td style="font-size:11px">Form liên hệ Website</td>
-          <td><strong style="color:#D97706">32.7%</strong></td>
-          <td>121/370</td>
+          <td><strong style="color:#D97706">32.9%</strong></td>
+          <td>122/371</td>
           <td><span class="badge bo">🟡</span></td>
         </tr><tr>
           <td style="font-size:11px">Lì Xì Tết 2026</td>
-          <td><strong style="color:#D97706">28.2%</strong></td>
-          <td>20/71</td>
+          <td><strong style="color:#D97706">29.2%</strong></td>
+          <td>21/72</td>
           <td><span class="badge bo">🟡</span></td>
         </tr><tr>
           <td style="font-size:11px">ĐH COD</td>
@@ -345,8 +345,8 @@ canvas{max-height:280px}
 <script>
 // ── DATA ──
 const SRC_LABELS=['TCĐM-Ý' ,'Popup 8.3' ,'GG New Lead Form' ,'Form liên hệ Website' ,'Lì Xì Tết 2026' ,'ĐH COD' ,'ĐH TG' ,'ĐH Bank/Online' ,'Form 200K' ,'Web TTN-Ý' ,'Dunlopillo' ];
-const SRC_RATES=[50,50,35.4,32.7,28.2,27.8,22.7,19.6,15.8,0,0];
-const SRC_PASSES=[2,1,40,121,20,75,5,9,16,0,0];
+const SRC_RATES=[50,50,35.4,32.9,29.2,27.8,22.7,19.6,15.8,0,0];
+const SRC_PASSES=[2,1,40,122,21,75,5,9,16,0,0];
 const SRC_FAILS=[2,1,73,249,51,195,17,37,85,6,11];
 const ACT_MONTHS=['T1','T2','T3'];
 const ACT_VALUES=[44,61,39];
