@@ -63,7 +63,7 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Phân tích thực tế</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 12/03/2026 14:35</div>
+  <div class="timestamp">🕐 Cập nhật: 12/03/2026 14:37</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -265,7 +265,7 @@ canvas{max-height:280px}
   <div class="section-label">FRT ảnh hưởng tỷ lệ chốt đơn không?</div>
   <div class="card">
     <div class="card-title">Kết quả đơn: Đúng SLA vs Vượt SLA</div>
-    <div class="card-sub">Chỉ tính đơn đã có trạng thái cuối (Chốt / Hủy / Không có nhu cầu) — bỏ qua "Đang tư vấn" và trống</div>
+    <div class="card-sub">Chỉ tính đơn đã có trạng thái cuối — bỏ qua "Đang tư vấn" và trống</div>
     <canvas id="chartStatus" style="max-height:240px"></canvas>
     <div id="status-table" style="margin-top:14px;overflow-x:auto"></div>
     <div id="status-insight" class="insight" style="margin-top:10px"></div>
@@ -528,18 +528,32 @@ function agg_heatmap(rows){
 
 // Trạng thái cuối (bỏ đang tư vấn và trống)
 var FINAL_STATUSES=['đã chốt','khách tiềm năng','gửi nhượng quyền','khách báo qua cửa hàng','chưa có nhu cầu','không nghe máy','hủy','ảo, spam','khác'];
+var SKIP_STATUSES=['đang tư vấn',''];
+
+function normalizeStatus(s){
+  return (s||'').trim().toLowerCase();
+}
+
 function agg_status(rows){
+  // Lấy tất cả trạng thái không phải "đang tư vấn" và không trống
   var filtered=rows.filter(function(r){
-    return r.st&&FINAL_STATUSES.indexOf(r.st)>=0;
+    var s=normalizeStatus(r.st);
+    return s!=='' && s!=='đang tư vấn';
   });
-  // Cross: trạng thái × SLA
+
+  // Group theo trạng thái (normalize)
   var result={};
-  FINAL_STATUSES.forEach(function(s){result[s]={ok:0,fail:0};});
   filtered.forEach(function(r){
-    if(!result[r.st]) return;
-    if(r.ok) result[r.st].ok++; else result[r.st].fail++;
+    var s=normalizeStatus(r.st);
+    if(!result[s]) result[s]={ok:0,fail:0,display:r.st.trim()};
+    if(r.ok) result[s].ok++; else result[s].fail++;
   });
-  return {total:filtered.length,data:result};
+
+  return {total:filtered.length, data:result,
+    keys:Object.keys(result).sort(function(a,b){
+      return (result[b].ok+result[b].fail)-(result[a].ok+result[a].fail);
+    })
+  };
 }
 
 // ── 1. PHÂN PHỐI FRT ──
@@ -646,10 +660,10 @@ function renderStatus(rows){
   }
   if(el) el.style.display='';
 
-  var labels=FINAL_STATUSES;
-  var okData =labels.map(function(s){return st.data[s]?st.data[s].ok:0;});
-  var failData=labels.map(function(s){return st.data[s]?st.data[s].fail:0;});
-  var totals  =labels.map(function(s){return st.data[s]?(st.data[s].ok+st.data[s].fail):0;});
+  var labels=st.keys.map(function(k){return st.data[k].display;});
+  var okData =st.keys.map(function(k){return st.data[k].ok;});
+  var failData=st.keys.map(function(k){return st.data[k].fail;});
+  var totals  =st.keys.map(function(k){return st.data[k].ok+st.data[k].fail;});
 
   if(chartStInst){
     chartStInst.data.datasets[0].data=okData;
@@ -683,13 +697,13 @@ function renderStatus(rows){
       +'<th style="background:#1E293B;color:#fff;padding:7px 8px;text-align:center">Đúng SLA</th>'
       +'<th style="background:#1E293B;color:#fff;padding:7px 8px;text-align:center">% Đúng SLA</th>'
       +'<th style="background:#1E293B;color:#fff;padding:7px 8px;text-align:center">Vượt SLA</th></tr>';
-    labels.forEach(function(s,i){
-      var d=st.data[s]||{ok:0,fail:0};
+    st.keys.forEach(function(k,i){
+      var d=st.data[k];
       var n=d.ok+d.fail;
       var pct=n?Math.round(d.ok/n*100):0;
       var color=pct>=50?'#16A34A':'#DC2626';
       t+='<tr style="background:'+(i%2===0?'#fff':'#F8FAFC')+'">'
-        +'<td style="padding:6px 12px;font-weight:600">'+s+'</td>'
+        +'<td style="padding:6px 12px;font-weight:600">'+d.display+'</td>'
         +'<td style="padding:6px 8px;text-align:center">'+n+'</td>'
         +'<td style="padding:6px 8px;text-align:center;color:#16A34A;font-weight:700">'+d.ok+'</td>'
         +'<td style="padding:6px 8px;text-align:center;font-weight:700;color:'+color+'">'+pct+'%</td>'
@@ -701,10 +715,12 @@ function renderStatus(rows){
 
   // Insight: FRT ảnh hưởng tỷ lệ chốt không?
   if(ins){
-    var chotOk=st.data['đã chốt']?st.data['đã chốt'].ok:0;
-    var chotN=(st.data['đã chốt']?st.data['đã chốt'].ok+st.data['đã chốt'].fail:0);
-    var huyOk=st.data['hủy']?st.data['hủy'].ok:0;
-    var huyN=(st.data['hủy']?st.data['hủy'].ok+st.data['hủy'].fail:0);
+    var chotKey=st.keys.find(function(k){return k==='đã chốt';});
+    var huyKey =st.keys.find(function(k){return k==='hủy';});
+    var chotOk=chotKey?st.data[chotKey].ok:0;
+    var chotN =chotKey?(st.data[chotKey].ok+st.data[chotKey].fail):0;
+    var huyOk =huyKey?st.data[huyKey].ok:0;
+    var huyN  =huyKey?(st.data[huyKey].ok+st.data[huyKey].fail):0;
     if(chotN>0&&huyN>0){
       var chotPct=Math.round(chotOk/chotN*100);
       var huyPct=Math.round(huyOk/huyN*100);
