@@ -63,7 +63,7 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Phân tích thực tế</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 12/03/2026 16:08</div>
+  <div class="timestamp">🕐 Cập nhật: 12/03/2026 16:09</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -265,7 +265,7 @@ canvas{max-height:280px}
   <div class="section-label">FRT ảnh hưởng tỷ lệ chốt đơn không?</div>
   <div class="card">
     <div class="card-title">Kết quả đơn: Đúng SLA vs Vượt SLA</div>
-    <div class="card-sub">Chỉ tính đơn đã có trạng thái cuối — bỏ qua "đang tư vấn" và trống</div>
+    <div class="card-sub">Chỉ tính đơn đã có trạng thái cuối — bỏ qua "Đang tư vấn" và trống</div>
     <canvas id="chartStatus" style="max-height:240px"></canvas>
     <div id="status-table" style="margin-top:14px;overflow-x:auto"></div>
     <div id="status-insight" class="insight" style="margin-top:10px"></div>
@@ -649,13 +649,20 @@ function renderStatus(rows){
   var ins=document.getElementById('status-insight');
 
   if(st.total<3){
-    if(el&&el.parentNode){
-      var msg='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">'
-        +'⚠️ Chưa đủ đơn có trạng thái cuối (Chốt/Hủy/Không có nhu cầu) trong khoảng thời gian này.<br>'
-        +'<strong>Yêu cầu sale điền trạng thái sau mỗi cuộc gọi</strong> để chart này hoạt động.</div>';
-      el.style.display='none';
-      if(wrap) wrap.innerHTML=msg;
-    }
+    if(el) el.style.display='none';
+    // DEBUG: liệt kê các giá trị st thực tế trong ALL_ROWS
+    var stCount={};
+    ALL_ROWS.forEach(function(r){
+      var s=r.st||'(trống)';
+      stCount[s]=(stCount[s]||0)+1;
+    });
+    var debugLines=Object.entries(stCount).sort(function(a,b){return b[1]-a[1];})
+      .map(function(e){return '"'+e[0]+'" — '+e[1]+' đơn';}).join('<br>');
+    if(wrap) wrap.innerHTML='<div style="padding:16px;background:#FEF9C3;border-radius:8px;font-size:12px">'
+      +'<strong>🔍 Debug — Các giá trị Trạng thái tìm thấy trong data:</strong><br><br>'
+      +debugLines
+      +'<br><br><span style="color:#92400E">Nếu cột Trạng thái không xuất hiện ở đây hoặc toàn "(trống)" → kiểm tra tên cột trong sheet (phải là "Trạng thái")</span>'
+      +'</div>';
     return;
   }
   if(el) el.style.display='';
