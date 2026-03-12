@@ -63,7 +63,7 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Phân tích thực tế</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 12/03/2026 13:56</div>
+  <div class="timestamp">🕐 Cập nhật: 12/03/2026 14:03</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -527,7 +527,7 @@ function agg_heatmap(rows){
 }
 
 // Trạng thái cuối (bỏ đang tư vấn và trống)
-var FINAL_STATUSES=['Chốt đơn','Hủy','Không có nhu cầu'];
+var FINAL_STATUSES=['đã chốt','khách tiềm năng','gửi nhượng quyền','khách báo qua cửa hàng','chưa có nhu cầu','không nghe máy','hủy','ảo, spam','khác'];
 function agg_status(rows){
   var filtered=rows.filter(function(r){
     return r.st&&FINAL_STATUSES.indexOf(r.st)>=0;
@@ -701,10 +701,10 @@ function renderStatus(rows){
 
   // Insight: FRT ảnh hưởng tỷ lệ chốt không?
   if(ins){
-    var chotOk=st.data['Chốt đơn']?st.data['Chốt đơn'].ok:0;
-    var chotN=(st.data['Chốt đơn']?st.data['Chốt đơn'].ok+st.data['Chốt đơn'].fail:0);
-    var huyOk=st.data['Hủy']?st.data['Hủy'].ok:0;
-    var huyN=(st.data['Hủy']?st.data['Hủy'].ok+st.data['Hủy'].fail:0);
+    var chotOk=st.data['đã chốt']?st.data['đã chốt'].ok:0;
+    var chotN=(st.data['đã chốt']?st.data['đã chốt'].ok+st.data['đã chốt'].fail:0);
+    var huyOk=st.data['hủy']?st.data['hủy'].ok:0;
+    var huyN=(st.data['hủy']?st.data['hủy'].ok+st.data['hủy'].fail:0);
     if(chotN>0&&huyN>0){
       var chotPct=Math.round(chotOk/chotN*100);
       var huyPct=Math.round(huyOk/huyN*100);
