@@ -61,9 +61,9 @@ canvas{max-height:280px}
   <div class="brand">📊 FRT <span>Dashboard</span></div>
   <div class="tab active" onclick="switchTab('overview')">Tổng quan</div>
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
-  <div class="tab" onclick="switchTab('logistic')">Hồi quy logistic</div>
+  <div class="tab" onclick="switchTab('logistic')">Phân tích thực tế</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 12/03/2026 13:26</div>
+  <div class="timestamp">🕐 Cập nhật: 12/03/2026 13:35</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -206,95 +206,56 @@ canvas{max-height:280px}
   </div>
 </div>
 
-<!-- ── LOGISTIC ── -->
+<!-- ── PHÂN TÍCH THỰC TẾ ── -->
 <div class="page" id="page-logistic">
-  <div class="hero" style="background:linear-gradient(135deg,#1E1B4B 0%,#4C1D95 100%)">
-    <div class="hero-tag">Hồi quy logistic</div>
-    <h1>Rủi ro vượt SLA: <span>theo giờ & thứ trong tuần</span></h1>
-    <p>Phân tích yếu tố nào ảnh hưởng đến khả năng vượt SLA. Hệ số tĩnh — train từ dữ liệu ban đầu.</p>
+  <div class="hero" style="background:linear-gradient(135deg,#1E1B4B 0%,#4338CA 100%)">
+    <div class="hero-tag">Phân tích thực tế — 100% từ data</div>
+    <h1>SLA% theo <span>giờ, thứ & trạng thái đơn</span></h1>
+    <p>Tất cả biểu đồ tính trực tiếp từ 1039 đơn thực tế — không dùng mô hình ước lượng.</p>
   </div>
 
-  <div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:12px 16px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start;font-size:12px;color:#92400E">
-    <span style="flex-shrink:0">⚠️</span>
-    <span>Hệ số logistic <strong>không tự cập nhật</strong> theo dữ liệu mới. Dùng để phân tích xu hướng định tính — không phải con số tuyệt đối.</span>
-  </div>
-
-  <div class="section-label">Yếu tố ảnh hưởng</div>
+  <div class="section-label">Phân phối FRT — xử lý trong bao lâu?</div>
   <div class="card">
-    <div class="card-title">Trọng số (coefficient) từng yếu tố</div>
-    <div class="card-sub">Âm = giảm rủi ro | Dương = tăng rủi ro | Giá trị tuyệt đối càng lớn = ảnh hưởng càng mạnh</div>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:160px;font-size:12px;text-align:right;color:var(--text)">Thứ trong tuần</div>
-        <div style="flex:1;background:#F1F5F9;border-radius:6px;height:26px;overflow:hidden">
-          <div style="width:75%;height:100%;background:#7C3AED;border-radius:6px;display:flex;align-items:center;padding-left:10px;color:#fff;font-size:11px;font-weight:700">−0.578</div>
-        </div>
-        <div style="width:50px;font-size:12px;font-weight:700;color:#7C3AED">−0.578</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:160px;font-size:12px;text-align:right;color:var(--text)">Tháng</div>
-        <div style="flex:1;background:#F1F5F9;border-radius:6px;height:26px;overflow:hidden">
-          <div style="width:62%;height:100%;background:#2563EB;border-radius:6px;display:flex;align-items:center;padding-left:10px;color:#fff;font-size:11px;font-weight:700">−0.511</div>
-        </div>
-        <div style="width:50px;font-size:12px;font-weight:700;color:#2563EB">−0.511</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:160px;font-size:12px;text-align:right;color:var(--text)">Giờ tạo đơn</div>
-        <div style="flex:1;background:#F1F5F9;border-radius:6px;height:26px;overflow:hidden">
-          <div style="width:28%;height:100%;background:#0891B2;border-radius:6px;display:flex;align-items:center;padding-left:10px;color:#fff;font-size:11px;font-weight:700">−0.143</div>
-        </div>
-        <div style="width:50px;font-size:12px;font-weight:700;color:#0891B2">−0.143</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:160px;font-size:12px;text-align:right;color:var(--text)">Nguồn đơn</div>
-        <div style="flex:1;background:#F1F5F9;border-radius:6px;height:26px;overflow:hidden">
-          <div style="width:4%;height:100%;background:#D97706;border-radius:6px;min-width:32px;display:flex;align-items:center;padding-left:6px;color:#fff;font-size:11px;font-weight:700">+0.002</div>
-        </div>
-        <div style="width:50px;font-size:12px;font-weight:700;color:#D97706">+0.002</div>
-      </div>
-    </div>
-    <div class="insight" style="margin-top:14px"><strong>Thứ trong tuần ảnh hưởng mạnh nhất:</strong> T2–T3 rủi ro cao nhất vì volume đơn dồn sau cuối tuần. Thứ 7 & CN sale ít đơn hơn, xử lý nhanh hơn.</div>
-    <div class="insight warn"><strong>Nguồn đơn ảnh hưởng rất ít (+0.002):</strong> Vấn đề không nằm ở loại đơn mà ở quy trình nội bộ và thời điểm trong tuần.</div>
+    <div class="card-title">Tỷ lệ đơn được xử lý trong từng khung thời gian</div>
+    <div class="card-sub">Tích lũy — mỗi cột bao gồm tất cả đơn từ cột trước</div>
+    <canvas id="chartDist" style="max-height:200px"></canvas>
+    <div id="dist-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
-  <div class="section-label">Rủi ro theo thứ trong tuần</div>
+  <div class="section-label">SLA% thực tế theo thứ trong tuần</div>
   <div class="card">
-    <div class="card-title">So sánh xác suất vượt SLA (%) theo thứ — giữa các tháng</div>
-    <div class="card-sub">Đơn tạo lúc 10:00 sáng | Chọn tháng muốn so sánh bên dưới</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;margin-top:10px" id="month-toggles"></div>
-    <canvas id="chartWeekday" style="max-height:240px"></canvas>
-    <div class="insight" style="margin-top:12px">Mỗi đường = 1 tháng. <strong>Đường nằm cao = tháng đó rủi ro cao hơn.</strong> Khoảng cách giữa các đường cho thấy mức độ cải thiện theo thời gian.</div>
+    <div class="card-title">Tỷ lệ đúng hạn (%) theo thứ — từ data thực tế</div>
+    <div class="card-sub">Ô xám = không đủ data (dưới 3 đơn)</div>
+    <canvas id="chartWeekday" style="max-height:220px"></canvas>
+    <div id="wd-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
-  <div class="section-label">Heatmap rủi ro: Nguồn × Giờ</div>
+  <div class="section-label">Heatmap SLA% thực tế: Nguồn × Giờ</div>
   <div class="card">
-    <div class="card-title">Xác suất vượt SLA (%) theo nguồn đơn và khung giờ</div>
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0 14px">
-      <span style="font-size:12px;color:var(--muted);font-weight:600">Tháng:</span>
-      <select id="hm-month" onchange="renderHeatmap()" style="border-color:#CBD5E1">
-        <option value="1">Tháng 1</option>
-        <option value="2" selected>Tháng 2</option>
-        <option value="3">Tháng 3</option>
-        <option value="4">Tháng 4</option>
-        <option value="5">Tháng 5</option>
-        <option value="6">Tháng 6</option>
-      </select>
-      <span id="hm-label" style="font-size:11px;color:var(--muted);font-style:italic"></span>
-    </div>
-    <div style="overflow-x:auto">
+    <div class="card-title">SLA% thực tế (%) theo nguồn đơn và khung giờ</div>
+    <div class="card-sub">Xanh = SLA% cao | Đỏ = SLA% thấp | Xám = không đủ data (dưới 3 đơn)</div>
+    <div style="overflow-x:auto;margin-top:10px">
       <table id="heatmap-table" style="font-size:11px;border-collapse:collapse;width:100%"></table>
     </div>
     <div style="display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap">
       <span style="font-size:11px;color:var(--muted)">Thang màu:</span>
       <div style="display:flex">
-        <div style="width:22px;height:14px;background:#DCFCE7;border-radius:2px 0 0 2px"></div>
-        <div style="width:22px;height:14px;background:#FEF3C7"></div>
+        <div style="width:22px;height:14px;background:#EF4444;border-radius:2px 0 0 2px"></div>
         <div style="width:22px;height:14px;background:#FED7AA"></div>
-        <div style="width:22px;height:14px;background:#FCA5A5"></div>
-        <div style="width:22px;height:14px;background:#EF4444;border-radius:0 2px 2px 0"></div>
+        <div style="width:22px;height:14px;background:#FEF3C7"></div>
+        <div style="width:22px;height:14px;background:#DCFCE7"></div>
+        <div style="width:22px;height:14px;background:#16A34A;border-radius:0 2px 2px 0"></div>
       </div>
-      <span style="font-size:11px;color:var(--muted)">0% → 100%</span>
+      <span style="font-size:11px;color:var(--muted)">0% → 100% SLA</span>
     </div>
+  </div>
+
+  <div class="section-label">SLA% theo trạng thái đơn</div>
+  <div class="card">
+    <div class="card-title">So sánh FRT giữa đơn Chốt / Hủy / Pending</div>
+    <div class="card-sub">Đơn bị hủy có FRT cao hơn không? → Insight quan trọng về quy trình</div>
+    <canvas id="chartStatus" style="max-height:220px"></canvas>
+    <div id="status-table" style="margin-top:14px;overflow-x:auto"></div>
   </div>
 </div>
 
@@ -459,103 +420,171 @@ function predict(){
   drawGauge(prob);
 }
 
-// ── WEEKDAY MULTI-MONTH CHART ──
-const WD_NAMES=['T2','T3','T4','T5','T6','T7','CN'];
-const MONTH_COLORS=['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#06B6D4'];
-const MONTH_LABELS=['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6'];
+// ── DATA THỰC TẾ (inject từ Apps Script) ──
+var HM_DATA   = {"TCĐM-Ý":{"8":{"rate":null,"n":0},"9":{"rate":null,"n":0},"10":{"rate":null,"n":0},"11":{"rate":null,"n":0},"12":{"rate":null,"n":0},"13":{"rate":null,"n":1},"14":{"rate":null,"n":0},"15":{"rate":null,"n":1},"16":{"rate":null,"n":0},"17":{"rate":null,"n":1},"18":{"rate":null,"n":0},"19":{"rate":null,"n":0},"20":{"rate":null,"n":0},"21":{"rate":null,"n":1}},"Popup 8.3":{"8":{"rate":null,"n":0},"9":{"rate":null,"n":1},"10":{"rate":null,"n":0},"11":{"rate":null,"n":0},"12":{"rate":null,"n":0},"13":{"rate":null,"n":0},"14":{"rate":null,"n":0},"15":{"rate":null,"n":0},"16":{"rate":null,"n":0},"17":{"rate":null,"n":0},"18":{"rate":null,"n":0},"19":{"rate":null,"n":0},"20":{"rate":null,"n":0},"21":{"rate":null,"n":0}},"GG New Lead Form":{"8":{"rate":0,"n":5},"9":{"rate":30,"n":10},"10":{"rate":50,"n":8},"11":{"rate":20,"n":10},"12":{"rate":9,"n":11},"13":{"rate":67,"n":6},"14":{"rate":0,"n":4},"15":{"rate":20,"n":10},"16":{"rate":67,"n":3},"17":{"rate":78,"n":9},"18":{"rate":100,"n":5},"19":{"rate":75,"n":8},"20":{"rate":100,"n":3},"21":{"rate":33,"n":6}},"Form liên hệ Website":{"8":{"rate":17,"n":12},"9":{"rate":23,"n":31},"10":{"rate":50,"n":24},"11":{"rate":21,"n":28},"12":{"rate":30,"n":33},"13":{"rate":13,"n":30},"14":{"rate":14,"n":21},"15":{"rate":33,"n":30},"16":{"rate":13,"n":23},"17":{"rate":79,"n":14},"18":{"rate":94,"n":16},"19":{"rate":76,"n":17},"20":{"rate":95,"n":21},"21":{"rate":14,"n":14}},"Lì Xì Tết 2026":{"8":{"rate":0,"n":4},"9":{"rate":null,"n":2},"10":{"rate":0,"n":5},"11":{"rate":20,"n":5},"12":{"rate":null,"n":1},"13":{"rate":13,"n":8},"14":{"rate":20,"n":5},"15":{"rate":20,"n":5},"16":{"rate":29,"n":7},"17":{"rate":null,"n":2},"18":{"rate":100,"n":5},"19":{"rate":null,"n":2},"20":{"rate":83,"n":6},"21":{"rate":33,"n":3}},"ĐH COD":{"8":{"rate":31,"n":13},"9":{"rate":13,"n":15},"10":{"rate":20,"n":20},"11":{"rate":22,"n":18},"12":{"rate":6,"n":16},"13":{"rate":19,"n":21},"14":{"rate":10,"n":21},"15":{"rate":21,"n":24},"16":{"rate":42,"n":12},"17":{"rate":64,"n":11},"18":{"rate":43,"n":7},"19":{"rate":79,"n":14},"20":{"rate":95,"n":19},"21":{"rate":17,"n":18}},"ĐH TG":{"8":{"rate":null,"n":1},"9":{"rate":0,"n":3},"10":{"rate":null,"n":0},"11":{"rate":null,"n":0},"12":{"rate":null,"n":2},"13":{"rate":0,"n":3},"14":{"rate":50,"n":4},"15":{"rate":60,"n":5},"16":{"rate":null,"n":2},"17":{"rate":null,"n":0},"18":{"rate":null,"n":0},"19":{"rate":null,"n":0},"20":{"rate":null,"n":0},"21":{"rate":null,"n":1}},"ĐH Bank/Online":{"8":{"rate":null,"n":2},"9":{"rate":null,"n":2},"10":{"rate":0,"n":4},"11":{"rate":0,"n":3},"12":{"rate":null,"n":0},"13":{"rate":33,"n":3},"14":{"rate":33,"n":3},"15":{"rate":33,"n":6},"16":{"rate":14,"n":7},"17":{"rate":null,"n":0},"18":{"rate":25,"n":4},"19":{"rate":null,"n":0},"20":{"rate":67,"n":3},"21":{"rate":0,"n":4}},"Form 200K":{"8":{"rate":0,"n":7},"9":{"rate":null,"n":1},"10":{"rate":0,"n":9},"11":{"rate":40,"n":5},"12":{"rate":11,"n":9},"13":{"rate":20,"n":5},"14":{"rate":11,"n":18},"15":{"rate":22,"n":9},"16":{"rate":17,"n":6},"17":{"rate":null,"n":2},"18":{"rate":75,"n":4},"19":{"rate":null,"n":0},"20":{"rate":75,"n":4},"21":{"rate":null,"n":1}},"Web TTN-Ý":{"8":{"rate":null,"n":1},"9":{"rate":null,"n":1},"10":{"rate":null,"n":1},"11":{"rate":null,"n":0},"12":{"rate":null,"n":0},"13":{"rate":null,"n":0},"14":{"rate":null,"n":0},"15":{"rate":null,"n":0},"16":{"rate":null,"n":1},"17":{"rate":null,"n":0},"18":{"rate":null,"n":0},"19":{"rate":null,"n":0},"20":{"rate":null,"n":0},"21":{"rate":null,"n":1}},"Dunlopillo":{"8":{"rate":null,"n":1},"9":{"rate":0,"n":3},"10":{"rate":null,"n":2},"11":{"rate":null,"n":2},"12":{"rate":null,"n":0},"13":{"rate":null,"n":1},"14":{"rate":null,"n":0},"15":{"rate":null,"n":0},"16":{"rate":null,"n":0},"17":{"rate":null,"n":0},"18":{"rate":null,"n":2},"19":{"rate":null,"n":2},"20":{"rate":null,"n":0},"21":{"rate":null,"n":0}}};
+var WD_DATA   = [{"label":"CN","total":162,"pass":118,"rate":73},{"label":"T2","total":139,"pass":11,"rate":8},{"label":"T3","total":141,"pass":31,"rate":22},{"label":"T4","total":145,"pass":28,"rate":19},{"label":"T5","total":169,"pass":26,"rate":15},{"label":"T6","total":137,"pass":25,"rate":18},{"label":"T7","total":146,"pass":54,"rate":37}];
+var DIST_DATA = [{"label":"≤1 phút","count":233,"pct":22.4},{"label":"≤3 phút","count":269,"pct":25.9},{"label":"≤5 phút","count":290,"pct":27.9},{"label":"≤10 phút","count":329,"pct":31.7},{"label":"≤30 phút","count":430,"pct":41.4},{"label":"≤60 phút","count":551,"pct":53},{"label":">60 phút","count":1039,"pct":100}];
+var ST_DATA   = [{"status":"Không rõ","total":1035,"pass":291,"rate":28,"median":53},{"status":"đang tư vấn","total":2,"pass":0,"rate":0,"median":3077},{"status":"chưa có nhu cầu","total":2,"pass":2,"rate":100,"median":2}];
 
-// Tính data cho tất cả tháng (giờ 10:00)
-const allMonthData=MONTH_LABELS.map(function(_,mi){
-  return WD_NAMES.map(function(_,wi){
-    return Math.round(sigmoid(3.82+0.002*2-0.143*10-0.578*wi-0.511*(mi+1))*1000)/10;
-  });
-});
-
-// Các tháng có data thực (từ ACT_MONTHS)
-const activeMonthNums=ACT_MONTHS.map(function(m){return parseInt(m.replace("'T","").replace("'",""));});
-
-const wdDatasets=MONTH_LABELS.map(function(label,mi){
-  return {
-    label:label,
-    data:allMonthData[mi],
-    borderColor:MONTH_COLORS[mi],
-    backgroundColor:MONTH_COLORS[mi]+'33',
-    borderWidth:2.5,
-    pointRadius:5,
-    pointHoverRadius:7,
-    tension:0.3,
-    fill:false,
-    hidden: activeMonthNums.indexOf(mi+1)===-1,
-  };
-});
-
-const wdChart=new Chart(document.getElementById('chartWeekday'),{
-  type:'line',
-  data:{labels:WD_NAMES, datasets:wdDatasets},
-  options:{
-    responsive:true,
-    scales:{y:{beginAtZero:true,max:100,title:{display:true,text:'Xác suất vượt SLA (%)'},ticks:{callback:function(v){return v+'%'}}}},
-    plugins:{
-      legend:{display:false},
-      tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.raw+'%'}}}
-    }
-  }
-});
-
-// Tạo toggle buttons
+// ── 1. PHÂN PHỐI FRT ──
 (function(){
-  const wrap=document.getElementById('month-toggles');
-  if(!wrap) return;
-  MONTH_LABELS.forEach(function(label,mi){
-    const btn=document.createElement('button');
-    const isActive=activeMonthNums.indexOf(mi+1)!==-1;
-    btn.textContent=label;
-    btn.style.cssText='padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid '+MONTH_COLORS[mi]+';transition:.2s;font-family:inherit;';
-    btn.style.background=isActive?MONTH_COLORS[mi]:'transparent';
-    btn.style.color=isActive?'#fff':MONTH_COLORS[mi];
-    btn.dataset.active=isActive?'1':'0';
-    btn.onclick=function(){
-      const active=btn.dataset.active==='1';
-      wdChart.data.datasets[mi].hidden=active;
-      btn.dataset.active=active?'0':'1';
-      btn.style.background=active?'transparent':MONTH_COLORS[mi];
-      btn.style.color=active?MONTH_COLORS[mi]:'#fff';
-      wdChart.update();
-    };
-    wrap.appendChild(btn);
+  var el=document.getElementById('chartDist');
+  if(!el||!DIST_DATA.length) return;
+  var labels=DIST_DATA.map(function(d){return d.label;});
+  var pcts  =DIST_DATA.map(function(d){return d.pct;});
+  var counts=DIST_DATA.map(function(d){return d.count;});
+  new Chart(el,{
+    type:'bar',
+    data:{
+      labels:labels,
+      datasets:[{
+        label:'% đơn',
+        data:pcts,
+        backgroundColor:['#16A34A','#22C55E','#4ADE80','#FCD34D','#FB923C','#F87171','#EF4444'],
+        borderRadius:6,
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:function(c){return c.raw+'% ('+counts[c.dataIndex]+' đơn)';}}}
+      },
+      scales:{y:{beginAtZero:true,max:100,ticks:{callback:function(v){return v+'%'}},title:{display:true,text:'Tỷ lệ tích lũy (%)'}}}
+    }
   });
+  // Insight
+  var sla5=DIST_DATA.find(function(d){return d.label==='≤5 phút';});
+  var sla1=DIST_DATA.find(function(d){return d.label==='≤1 phút';});
+  var ins=document.getElementById('dist-insight');
+  if(ins&&sla5) ins.innerHTML='<strong>'+sla5.pct+'% đơn</strong> được xử lý trong ≤5 phút (đúng SLA). '+(sla1?'<strong>'+sla1.pct+'%</strong> xử lý ngay trong 1 phút đầu tiên.':'');
 })();
 
-// ── HEATMAP với picker Tháng ──
-function heatBg(v){return v<30?'#DCFCE7':v<50?'#FEF3C7':v<70?'#FED7AA':v<85?'#FCA5A5':'#EF4444'}
-function heatFg(v){return v<50?'#1E293B':'#7F1D1D'}
-
-function renderHeatmap(){
-  var tbl=document.getElementById('heatmap-table');
-  if(!tbl) return;
-  var month=+(document.getElementById('hm-month')||{value:2}).value||2;
-  var lbl=document.getElementById('hm-label');
-  if(lbl) lbl.textContent='Đang xem: Tháng '+month+' | Thứ 3, 10:00 sáng (trung bình)';
-
-  var hours=[8,9,10,11,12,13,14,15,16,17,18,19,20,21];
-  var html='<tr><th style="background:#1E293B;color:#fff;padding:6px 10px;text-align:left;white-space:nowrap;font-size:11px">Nguon don</th>';
-  hours.forEach(function(h){
-    html+='<th style="background:#1E293B;color:#fff;padding:6px 6px;text-align:center;font-size:11px">'+h+'h</th>';
+// ── 2. SLA% THEO THỨ THỰC TẾ ──
+(function(){
+  var el=document.getElementById('chartWeekday');
+  if(!el||!WD_DATA.length) return;
+  var labels=WD_DATA.map(function(d){return d.label;});
+  var rates =WD_DATA.map(function(d){return d.rate;});
+  var totals=WD_DATA.map(function(d){return d.total;});
+  new Chart(el,{
+    type:'bar',
+    data:{
+      labels:labels,
+      datasets:[{
+        label:'SLA%',
+        data:rates,
+        backgroundColor:rates.map(function(v){
+          if(v===null) return '#CBD5E1';
+          return v>=50?'#16A34A':v>=30?'#F59E0B':'#EF4444';
+        }),
+        borderRadius:6,
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:function(c){
+          var v=c.raw; var n=totals[c.dataIndex];
+          return v===null?'Không đủ data ('+n+' đơn)':v+'% SLA ('+n+' đơn)';
+        }}}
+      },
+      scales:{y:{beginAtZero:true,max:100,ticks:{callback:function(v){return v+'%'}},title:{display:true,text:'SLA% thực tế'}}}
+    }
   });
-  html+='</tr>';
+  // Insight: thứ tệ nhất và tốt nhất
+  var valid=WD_DATA.filter(function(d){return d.rate!==null&&d.total>=5;});
+  if(valid.length){
+    var best=valid.reduce(function(a,b){return b.rate>a.rate?b:a;});
+    var worst=valid.reduce(function(a,b){return b.rate<a.rate?b:a;});
+    var ins=document.getElementById('wd-insight');
+    if(ins) ins.innerHTML='📈 <strong>'+best.label+'</strong> đạt SLA tốt nhất: <strong>'+best.rate+'%</strong> ('+best.total+' đơn). '
+      +'📉 <strong>'+worst.label+'</strong> tệ nhất: <strong>'+worst.rate+'%</strong> ('+worst.total+' đơn).';
+  }
+})();
 
-  SRC_LABELS.forEach(function(src,si){
+// ── 3. HEATMAP SLA% THỰC TẾ ──
+(function(){
+  var tbl=document.getElementById('heatmap-table');
+  if(!tbl||!Object.keys(HM_DATA).length) return;
+  var hours=[8,9,10,11,12,13,14,15,16,17,18,19,20,21];
+  var sources=Object.keys(HM_DATA);
+  function slaColor(v){
+    if(v===null) return {bg:'#F1F5F9',fg:'#94A3B8'};
+    if(v>=70) return {bg:'#16A34A',fg:'#fff'};
+    if(v>=50) return {bg:'#4ADE80',fg:'#1E293B'};
+    if(v>=30) return {bg:'#FCD34D',fg:'#1E293B'};
+    if(v>=15) return {bg:'#FB923C',fg:'#1E293B'};
+    return {bg:'#EF4444',fg:'#fff'};
+  }
+  var html='<tr><th style="background:#1E293B;color:#fff;padding:6px 10px;text-align:left;white-space:nowrap;font-size:11px">Nguồn đơn</th>';
+  hours.forEach(function(h){html+='<th style="background:#1E293B;color:#fff;padding:6px 6px;text-align:center;font-size:11px">'+h+'h</th>';});
+  html+='</tr>';
+  sources.forEach(function(src){
     html+='<tr><td style="padding:5px 10px;font-size:11px;white-space:nowrap;border-bottom:1px solid #E2E8F0;font-weight:500">'+src+'</td>';
     hours.forEach(function(h){
-      var v=risk(si,h,1,month);
-      html+='<td style="background:'+heatBg(v)+';color:'+heatFg(v)+';padding:5px 4px;text-align:center;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.4)">'+Math.round(v)+'%</td>';
+      var cell=(HM_DATA[src]&&HM_DATA[src][h])||{rate:null,n:0};
+      var c=slaColor(cell.rate);
+      var txt=cell.rate===null?'—':cell.rate+'%';
+      var title=cell.n+' đơn';
+      html+='<td title="'+title+'" style="background:'+c.bg+';color:'+c.fg+';padding:5px 4px;text-align:center;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.4)">'+txt+'</td>';
     });
     html+='</tr>';
   });
   tbl.innerHTML=html;
-}
+})();
 
-renderHeatmap();
+// ── 4. TRẠNG THÁI ĐƠN ──
+(function(){
+  var el=document.getElementById('chartStatus');
+  if(!el||!ST_DATA.length) return;
+  var labels=ST_DATA.map(function(d){return d.status+' ('+d.total+'đ)';});
+  var rates =ST_DATA.map(function(d){return d.rate;});
+  var medians=ST_DATA.map(function(d){return d.median;});
+  new Chart(el,{
+    type:'bar',
+    data:{
+      labels:labels,
+      datasets:[
+        {label:'SLA%',data:rates,backgroundColor:'#3B82F6',borderRadius:6,yAxisID:'y'},
+        {label:'Median FRT (phút)',data:medians,backgroundColor:'#F59E0B',borderRadius:6,yAxisID:'y2'},
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{display:true},tooltip:{callbacks:{label:function(c){
+        return c.dataset.label+': '+(c.dataset.yAxisID==='y'?c.raw+'%':c.raw+' phút');
+      }}}},
+      scales:{
+        y:{beginAtZero:true,max:100,position:'left',ticks:{callback:function(v){return v+'%'}},title:{display:true,text:'SLA%'}},
+        y2:{beginAtZero:true,position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'Median FRT (phút)'}},
+      }
+    }
+  });
+  // Table chi tiết
+  var wrap=document.getElementById('status-table');
+  if(wrap){
+    var t='<table style="width:100%;border-collapse:collapse;font-size:12px"><tr>'
+      +'<th style="background:#1E293B;color:#fff;padding:7px 12px;text-align:left">Trạng thái</th>'
+      +'<th style="background:#1E293B;color:#fff;padding:7px 8px;text-align:center">Tổng đơn</th>'
+      +'<th style="background:#1E293B;color:#fff;padding:7px 8px;text-align:center">Đúng SLA</th>'
+      +'<th style="background:#1E293B;color:#fff;padding:7px 8px;text-align:center">SLA%</th>'
+      +'<th style="background:#1E293B;color:#fff;padding:7px 8px;text-align:center">Median FRT</th></tr>';
+    ST_DATA.forEach(function(d,i){
+      var bg=i%2===0?'#fff':'#F8FAFC';
+      var color=d.rate>=50?'#16A34A':'#DC2626';
+      t+='<tr style="background:'+bg+'">'
+        +'<td style="padding:6px 12px;font-weight:600">'+d.status+'</td>'
+        +'<td style="padding:6px 8px;text-align:center">'+d.total+'</td>'
+        +'<td style="padding:6px 8px;text-align:center">'+d.pass+'</td>'
+        +'<td style="padding:6px 8px;text-align:center;font-weight:700;color:'+color+'">'+d.rate+'%</td>'
+        +'<td style="padding:6px 8px;text-align:center">'+d.median+' phút</td></tr>';
+    });
+    t+='</table>';
+    wrap.innerHTML=t;
+  }
+})();
 
 // ── TABS ──
 function switchTab(t){
