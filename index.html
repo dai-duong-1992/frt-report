@@ -63,7 +63,7 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Phân tích thực tế</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 12/03/2026 16:51</div>
+  <div class="timestamp">🕐 Cập nhật: 12/03/2026 16:53</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -286,6 +286,7 @@ canvas{max-height:280px}
     </div>
   </div>
 
+
   <div class="section-label">FRT ảnh hưởng tỷ lệ chốt đơn không?</div>
   <div class="card">
     <div class="card-title">Kết quả đơn: Đúng SLA vs Vượt SLA</div>
@@ -293,6 +294,30 @@ canvas{max-height:280px}
     <canvas id="chartStatus" style="max-height:240px"></canvas>
     <div id="status-table" style="margin-top:14px;overflow-x:auto"></div>
     <div id="status-insight" class="insight" style="margin-top:10px"></div>
+  </div>
+
+  <div class="section-label">Tỷ lệ chốt đơn theo khung FRT</div>
+  <div class="card">
+    <div class="card-title">% đơn chốt thành công theo tốc độ phản hồi</div>
+    <div class="card-sub">Trả lời nhanh hơn có giúp chốt đơn nhiều hơn không?</div>
+    <canvas id="chartFrtConv" style="max-height:220px"></canvas>
+    <div id="frt-conv-insight" class="insight" style="margin-top:12px"></div>
+  </div>
+
+  <div class="section-label">Tỷ lệ chốt đơn theo nguồn</div>
+  <div class="card">
+    <div class="card-title">% đơn chốt theo từng nguồn đơn</div>
+    <div class="card-sub">Nguồn nào mang lại khách hàng chất lượng nhất?</div>
+    <canvas id="chartSrcConv" style="max-height:280px"></canvas>
+    <div id="src-conv-insight" class="insight" style="margin-top:12px"></div>
+  </div>
+
+  <div class="section-label">Tỷ lệ chốt đơn theo giờ trong ngày</div>
+  <div class="card">
+    <div class="card-title">% đơn chốt theo khung giờ tạo đơn</div>
+    <div class="card-sub">Khung giờ nào khách có nhu cầu thật sự cao nhất?</div>
+    <canvas id="chartHourConv" style="max-height:200px"></canvas>
+    <div id="hour-conv-insight" class="insight" style="margin-top:12px"></div>
   </div>
 </div>
 
@@ -490,6 +515,9 @@ function applyDateFilter(){
   renderWeekday(rows);
   renderHeatmap(rows);
   renderStatus(rows);
+  renderFrtConv(rows);
+  renderSrcConv(rows);
+  renderHourConv(rows);
 }
 
 function clearDateFilter(){
@@ -926,7 +954,181 @@ function renderStatus(rows){
   }
 }
 
-// ── KHỞI ĐỘNG ──
+// ── AGG: Tỷ lệ chốt theo FRT bucket ──
+function agg_frt_conv(rows){
+  var buckets=[
+    {label:'≤1 phút', max:1},
+    {label:'2–5 phút', min:1, max:5},
+    {label:'6–15 phút', min:5, max:15},
+    {label:'16–60 phút', min:15, max:60},
+    {label:'1–4 giờ', min:60, max:240},
+    {label:'>4 giờ', min:240, max:Infinity},
+  ];
+  var final=rows.filter(function(r){
+    var s=normalizeStatus(r.st);
+    return s!=='' && SKIP_STATUSES.indexOf(s)===-1;
+  });
+  return buckets.map(function(b){
+    var grp=final.filter(function(r){
+      return r.mins<=(b.max) && r.mins>(b.min||0);
+    });
+    var chot=grp.filter(function(r){return normalizeStatus(r.st)==='đã chốt';}).length;
+    return {label:b.label, total:grp.length, chot:chot,
+      rate:grp.length>=3?Math.round(chot/grp.length*100):null};
+  });
+}
+
+// ── AGG: Tỷ lệ chốt theo nguồn ──
+function agg_src_conv(rows){
+  var final=rows.filter(function(r){
+    var s=normalizeStatus(r.st);
+    return s!=='' && SKIP_STATUSES.indexOf(s)===-1;
+  });
+  var g={};
+  final.forEach(function(r){
+    if(!r.src) return;
+    if(!g[r.src]) g[r.src]={total:0,chot:0};
+    g[r.src].total++;
+    if(normalizeStatus(r.st)==='đã chốt') g[r.src].chot++;
+  });
+  return Object.keys(g)
+    .filter(function(s){return g[s].total>=5;})
+    .map(function(s){
+      return {label:s,total:g[s].total,chot:g[s].chot,
+        rate:Math.round(g[s].chot/g[s].total*100)};
+    })
+    .sort(function(a,b){return b.rate-a.rate;});
+}
+
+// ── AGG: Tỷ lệ chốt theo giờ ──
+function agg_hour_conv(rows){
+  var hours=[8,9,10,11,12,13,14,15,16,17,18,19,20,21];
+  var final=rows.filter(function(r){
+    var s=normalizeStatus(r.st);
+    return s!=='' && SKIP_STATUSES.indexOf(s)===-1;
+  });
+  var g={};
+  hours.forEach(function(h){g[h]={total:0,chot:0};});
+  final.forEach(function(r){
+    if(r.hour===null||r.hour===undefined) return;
+    var h=r.hour; if(h<8||h>21) return;
+    g[h].total++;
+    if(normalizeStatus(r.st)==='đã chốt') g[h].chot++;
+  });
+  return hours.map(function(h){
+    return {label:h+'h',total:g[h].total,chot:g[h].chot,
+      rate:g[h].total>=3?Math.round(g[h].chot/g[h].total*100):null};
+  });
+}
+
+var chartFrtConvInst=null, chartSrcConvInst=null, chartHourConvInst=null;
+
+// ── RENDER: FRT → Chốt ──
+function renderFrtConv(rows){
+  var data=agg_frt_conv(rows);
+  var labels=data.map(function(d){return d.label;});
+  var rates =data.map(function(d){return d.rate;});
+  var totals=data.map(function(d){return d.total;});
+  var chots =data.map(function(d){return d.chot;});
+  var colors=rates.map(function(v){
+    if(v===null) return '#CBD5E1';
+    return v>=20?'#16A34A':v>=10?'#F59E0B':'#EF4444';
+  });
+  chartFrtConvInst=upsertChart(chartFrtConvInst,'chartFrtConv',{
+    type:'bar',
+    data:{labels:labels,datasets:[{label:'% Chốt',data:rates,backgroundColor:colors,borderRadius:6}]},
+    options:{responsive:true,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
+        var i=c.dataIndex;
+        return c.raw===null?'Không đủ data ('+totals[i]+' đơn)':
+          c.raw+'% chốt ('+chots[i]+'/'+totals[i]+' đơn)';
+      }}}},
+      scales:{y:{beginAtZero:true,max:100,ticks:{callback:function(v){return v+'%'}},
+        title:{display:true,text:'Tỷ lệ chốt đơn (%)'}}}
+    }
+  });
+  var valid=data.filter(function(d){return d.rate!==null&&d.total>=5;});
+  var ins=document.getElementById('frt-conv-insight');
+  if(ins&&valid.length){
+    var best=valid.reduce(function(a,b){return b.rate>a.rate?b:a;});
+    var worst=valid.reduce(function(a,b){return b.rate<a.rate?b:a;});
+    if(best.rate===worst.rate){
+      ins.innerHTML='ℹ️ Tỷ lệ chốt tương đồng giữa các khung FRT — FRT không phải yếu tố quyết định chốt đơn với sản phẩm này.';
+    } else {
+      ins.innerHTML='📊 Khung FRT có tỷ lệ chốt cao nhất: <strong>'+best.label+' — '+best.rate+'%</strong>. '
+        +'Thấp nhất: <strong>'+worst.label+' — '+worst.rate+'%</strong>. '
+        +(best.rate-worst.rate>=10?'<strong>Có sự khác biệt đáng kể</strong> — FRT ảnh hưởng đến tỷ lệ chốt.':'Chênh lệch nhỏ — FRT không phải yếu tố chính.');
+    }
+  }
+}
+
+// ── RENDER: Nguồn → Chốt ──
+function renderSrcConv(rows){
+  var data=agg_src_conv(rows);
+  if(!data.length){
+    var el=document.getElementById('chartSrcConv');
+    if(el) el.style.display='none';
+    var ins=document.getElementById('src-conv-insight');
+    if(ins) ins.innerHTML='Chưa đủ data (cần ≥5 đơn có trạng thái cuối mỗi nguồn).';
+    return;
+  }
+  var labels=data.map(function(d){return d.label;});
+  var rates =data.map(function(d){return d.rate;});
+  var totals=data.map(function(d){return d.total;});
+  var chots =data.map(function(d){return d.chot;});
+  var colors=rates.map(function(v){return v>=20?'#16A34A':v>=10?'#F59E0B':'#EF4444';});
+  chartSrcConvInst=upsertChart(chartSrcConvInst,'chartSrcConv',{
+    type:'bar',
+    data:{labels:labels,datasets:[{label:'% Chốt',data:rates,backgroundColor:colors,borderRadius:6}]},
+    options:{responsive:true,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
+        return c.raw+'% chốt ('+chots[c.dataIndex]+'/'+totals[c.dataIndex]+' đơn)';
+      }}}},
+      scales:{x:{beginAtZero:true,max:100,ticks:{callback:function(v){return v+'%'}},
+        title:{display:true,text:'Tỷ lệ chốt (%)'}}}
+    }
+  });
+  var ins=document.getElementById('src-conv-insight');
+  if(ins&&data.length){
+    ins.innerHTML='🏆 Nguồn chất lượng nhất: <strong>'+data[0].label+' — '+data[0].rate+'%</strong> ('+data[0].total+' đơn). '
+      +(data.length>1?'📉 Nguồn thấp nhất: <strong>'+data[data.length-1].label+' — '+data[data.length-1].rate+'%</strong>.':'');
+  }
+}
+
+// ── RENDER: Giờ → Chốt ──
+function renderHourConv(rows){
+  var data=agg_hour_conv(rows);
+  var labels=data.map(function(d){return d.label;});
+  var rates =data.map(function(d){return d.rate;});
+  var totals=data.map(function(d){return d.total;});
+  var chots =data.map(function(d){return d.chot;});
+  var colors=rates.map(function(v){
+    if(v===null) return '#CBD5E1';
+    return v>=20?'#16A34A':v>=10?'#F59E0B':'#EF4444';
+  });
+  chartHourConvInst=upsertChart(chartHourConvInst,'chartHourConv',{
+    type:'bar',
+    data:{labels:labels,datasets:[{label:'% Chốt',data:rates,backgroundColor:colors,borderRadius:6}]},
+    options:{responsive:true,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
+        var i=c.dataIndex;
+        return c.raw===null?'Không đủ data ('+totals[i]+' đơn)':
+          c.raw+'% chốt ('+chots[i]+'/'+totals[i]+' đơn)';
+      }}}},
+      scales:{y:{beginAtZero:true,max:100,ticks:{callback:function(v){return v+'%'}},
+        title:{display:true,text:'Tỷ lệ chốt (%)'}}}
+    }
+  });
+  var valid=data.filter(function(d){return d.rate!==null&&d.total>=3;});
+  var ins=document.getElementById('hour-conv-insight');
+  if(ins&&valid.length){
+    var best=valid.reduce(function(a,b){return b.rate>a.rate?b:a;});
+    ins.innerHTML='⏰ Khung giờ chốt đơn tốt nhất: <strong>'+best.label+' — '+best.rate+'%</strong> ('+best.total+' đơn có trạng thái). '
+      +'Ưu tiên bố trí sale giỏi trong khung này.';
+  }
+}
+
+
 (function(){
   renderMonthly(ALL_ROWS);
   renderSourceSla(ALL_ROWS);
@@ -935,6 +1137,9 @@ function renderStatus(rows){
   renderWeekday(ALL_ROWS);
   renderHeatmap(ALL_ROWS);
   renderStatus(ALL_ROWS);
+  renderFrtConv(ALL_ROWS);
+  renderSrcConv(ALL_ROWS);
+  renderHourConv(ALL_ROWS);
   var dates=ALL_ROWS.filter(function(r){return r.date;}).map(function(r){return r.date;}).sort();
   if(dates.length){
     var f=document.getElementById('date-from');
