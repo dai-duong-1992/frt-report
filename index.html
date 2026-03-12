@@ -63,7 +63,7 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Hồi quy logistic</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 12/03/2026 13:05</div>
+  <div class="timestamp">🕐 Cập nhật: 12/03/2026 13:14</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -269,8 +269,19 @@ canvas{max-height:280px}
   <div class="section-label">Heatmap rủi ro: Nguồn × Giờ</div>
   <div class="card">
     <div class="card-title">Xác suất vượt SLA (%) theo nguồn đơn và khung giờ</div>
-    <div class="card-sub">Màu đỏ = rủi ro cao | Màu xanh = an toàn | Thứ 3, Tháng 2</div>
-    <div style="overflow-x:auto;margin-top:8px">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0 14px">
+      <span style="font-size:12px;color:var(--muted);font-weight:600">Tháng:</span>
+      <select id="hm-month" onchange="renderHeatmap()" style="border-color:#CBD5E1">
+        <option value="1">Tháng 1</option>
+        <option value="2" selected>Tháng 2</option>
+        <option value="3">Tháng 3</option>
+        <option value="4">Tháng 4</option>
+        <option value="5">Tháng 5</option>
+        <option value="6">Tháng 6</option>
+      </select>
+      <span id="hm-label" style="font-size:11px;color:var(--muted);font-style:italic"></span>
+    </div>
+    <div style="overflow-x:auto">
       <table id="heatmap-table" style="font-size:11px;border-collapse:collapse;width:100%"></table>
     </div>
     <div style="display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap">
@@ -515,26 +526,36 @@ const wdChart=new Chart(document.getElementById('chartWeekday'),{
   });
 })();
 
-// ── HEATMAP ──
-(function(){
-  const hours=[8,9,10,11,12,13,14,15,16,17,18,19,20,21];
-  const tbl=document.getElementById('heatmap-table');
+// ── HEATMAP với picker Tháng ──
+function heatBg(v){return v<30?'#DCFCE7':v<50?'#FEF3C7':v<70?'#FED7AA':v<85?'#FCA5A5':'#EF4444'}
+function heatFg(v){return v<50?'#1E293B':'#7F1D1D'}
+
+function renderHeatmap(){
+  var tbl=document.getElementById('heatmap-table');
   if(!tbl) return;
-  function heatBg(v){return v<30?'#DCFCE7':v<50?'#FEF3C7':v<70?'#FED7AA':v<85?'#FCA5A5':'#EF4444'}
-  function heatFg(v){return v<50?'#1E293B':'#7F1D1D'}
-  let html='<tr><th style="background:#1E293B;color:#fff;padding:6px 10px;text-align:left;white-space:nowrap;font-size:11px">Nguon don</th>';
-  hours.forEach(function(h){html+='<th style="background:#1E293B;color:#fff;padding:6px 6px;text-align:center;font-size:11px">'+h+'h</th>';});
+  var month=+(document.getElementById('hm-month')||{value:2}).value||2;
+  var lbl=document.getElementById('hm-label');
+  if(lbl) lbl.textContent='Đang xem: Tháng '+month+' | Thứ 3, 10:00 sáng (trung bình)';
+
+  var hours=[8,9,10,11,12,13,14,15,16,17,18,19,20,21];
+  var html='<tr><th style="background:#1E293B;color:#fff;padding:6px 10px;text-align:left;white-space:nowrap;font-size:11px">Nguon don</th>';
+  hours.forEach(function(h){
+    html+='<th style="background:#1E293B;color:#fff;padding:6px 6px;text-align:center;font-size:11px">'+h+'h</th>';
+  });
   html+='</tr>';
+
   SRC_LABELS.forEach(function(src,si){
-    html+='<tr><td style="padding:5px 10px;font-size:11px;white-space:nowrap;border-bottom:1px solid #E2E8F0">'+src+'</td>';
+    html+='<tr><td style="padding:5px 10px;font-size:11px;white-space:nowrap;border-bottom:1px solid #E2E8F0;font-weight:500">'+src+'</td>';
     hours.forEach(function(h){
-      const v=risk(si,h,1,2);
+      var v=risk(si,h,1,month);
       html+='<td style="background:'+heatBg(v)+';color:'+heatFg(v)+';padding:5px 4px;text-align:center;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.4)">'+Math.round(v)+'%</td>';
     });
     html+='</tr>';
   });
   tbl.innerHTML=html;
-})();
+}
+
+renderHeatmap();
 
 // ── TABS ──
 function switchTab(t){
