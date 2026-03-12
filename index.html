@@ -63,7 +63,7 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Phân tích thực tế</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 12/03/2026 16:21</div>
+  <div class="timestamp">🕐 Cập nhật: 12/03/2026 16:24</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -826,9 +826,28 @@ function renderStatus(rows){
 
   if(st.total<3){
     if(el) el.style.display='none';
-    if(wrap) wrap.innerHTML='<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px">'
-      +'⚠️ Sale chưa điền trạng thái đủ để phân tích.<br>'
-      +'<strong>Yêu cầu sale chuyển trạng thái sau mỗi cuộc gọi</strong> — chart sẽ tự hiển thị khi có data.</div>';
+    // Vẽ biểu đồ tỷ lệ điền trạng thái thay thế
+    var stCount={filled:0,empty:0};
+    var rows2=getFilteredRows();
+    rows2.forEach(function(r){
+      var s=normalizeStatus(r.st);
+      if(s===''||s==='đang tư vấn') stCount.empty++; else stCount.filled++;
+    });
+    var total2=stCount.filled+stCount.empty;
+    var filledPct=total2?Math.round(stCount.filled/total2*100):0;
+    if(wrap) wrap.innerHTML=
+      '<div style="margin-bottom:12px">'
+      +'<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">'
+      +'<span>Tỷ lệ điền trạng thái</span>'
+      +'<strong style="color:'+(filledPct>=50?'#16A34A':'#DC2626')+'">'+filledPct+'%</strong></div>'
+      +'<div style="height:20px;background:#F1F5F9;border-radius:10px;overflow:hidden">'
+      +'<div style="height:100%;width:'+filledPct+'%;background:'+(filledPct>=50?'#16A34A':'#EF4444')+';border-radius:10px;transition:.4s"></div></div>'
+      +'<div style="display:flex;gap:16px;margin-top:8px;font-size:11px;color:var(--muted)">'
+      +'<span>✅ Đã điền: <strong>'+stCount.filled+' đơn</strong></span>'
+      +'<span>⬜ Chưa điền / Đang tư vấn: <strong>'+stCount.empty+' đơn</strong></span>'
+      +'</div></div>'
+      +'<div class="insight warn" style="font-size:12px">Cần ít nhất <strong>3 đơn có trạng thái cuối</strong> để vẽ biểu đồ SLA × Kết quả. '
+      +'Hiện tại có <strong>'+stCount.filled+'/'+total2+'</strong> đơn đã điền trạng thái.</div>';
     return;
   }
   if(el) el.style.display='';
