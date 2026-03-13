@@ -63,7 +63,7 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Phân tích thực tế</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 13/03/2026 15:10</div>
+  <div class="timestamp">🕐 Cập nhật: 13/03/2026 15:17</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -401,6 +401,53 @@ canvas{max-height:280px}
 <script>
 // ── MODELS (inject từ Apps Script — retrain mỗi 15 phút) ──
 var MODELS = {"sla":{"w":[2.0160530456679844,-1.3509981321765283,-0.29759349373854627,0.16804600892940472],"b":-1.6351866286562802,"acc":69.7,"n":1015},"chot":{"w":[-0.34831027253519664,-0.43622661278259134,-0.4293859784748025,3.5955325905336015,0.29025779521300166],"b":-1.6090397471702964,"acc":72.4,"n":598},"srcSla":{"Form liên hệ Website":0.31313131313131315,"Web TTN-Ý":0,"TCĐM-Ý":0.2767354596622889,"GG New Lead Form":0.3565217391304348,"Popup 8.3":0.2767354596622889,"Lì Xì Tết 2026":0.26506024096385544,"ĐH COD":0.2717391304347826,"ĐH Bank/Online":0.1956521739130435,"ĐH TG":0.22727272727272727,"Form 200K":0.15841584158415842,"Dunlopillo":0},"srcChot":{"Form liên hệ Website":0.06111111111111111,"Web TTN-Ý":0.16666666666666666,"TCĐM-Ý":0.28548644338118023,"GG New Lead Form":0.03571428571428571,"Popup 8.3":0.28548644338118023,"Lì Xì Tết 2026":0.02702702702702703,"ĐH COD":0.5245901639344263,"ĐH Bank/Online":0.631578947368421,"ĐH TG":0.3,"Form 200K":0.08888888888888889,"Dunlopillo":0.5555555555555556},"sources":["Dunlopillo","Form 200K","Form liên hệ Website","GG New Lead Form","Lì Xì Tết 2026","Popup 8.3","TCĐM-Ý","Web TTN-Ý","ĐH Bank/Online","ĐH COD","ĐH TG"]};
+
+// ── DATA TỔNG QUAN / HỒI QUY (inject từ Apps Script) ──
+var SRC_LABELS=['TCĐM-Ý' ,'GG New Lead Form' ,'Form liên hệ Website' ,'ĐH COD' ,'Lì Xì Tết 2026' ,'Popup 8.3' ,'ĐH TG' ,'ĐH Bank/Online' ,'Form 200K' ,'Web TTN-Ý' ,'Dunlopillo' ];
+var SRC_RATES=[50,35.7,31.3,27.2,26.5,25,22.7,19.6,15.8,0,0];
+var SRC_PASSES=[2,41,124,75,22,1,5,9,16,0,0];
+var SRC_FAILS=[2,74,272,201,61,3,17,37,85,6,13];
+var ACT_MONTHS=['T1','T2','T3'];
+var ACT_VALUES=[44,61,40];
+var FUT_MONTHS=['T4','T5','T6'];
+var FUT_VALUES=[44,42,40];
+var SLOPE=-2;
+var INTERCEPT=52.3;
+
+// ── CHART NGUỒN ĐƠN (tab Tổng quan) ──
+(function(){
+  var el=document.getElementById('chartSource'); if(!el) return;
+  new Chart(el,{type:'bar',
+    data:{labels:SRC_LABELS,datasets:[
+      {label:'Đúng hạn',data:SRC_PASSES,backgroundColor:'#22C55E',borderRadius:4},
+      {label:'Vượt SLA',data:SRC_FAILS,backgroundColor:'#EF4444',borderRadius:4},
+    ]},
+    options:{responsive:true,indexAxis:'y',
+      scales:{x:{stacked:true,beginAtZero:true},y:{stacked:true}},
+      plugins:{legend:{position:'bottom'}}}});
+})();
+
+// ── CHART HỒI QUY (tab Hồi quy tuyến tính) ──
+(function(){
+  var el=document.getElementById('chartRegression'); if(!el) return;
+  var labels=ACT_MONTHS.concat(FUT_MONTHS);
+  var actual=ACT_VALUES.concat(FUT_MONTHS.map(function(){return null;}));
+  var forecast=ACT_MONTHS.map(function(){return null;}).concat(FUT_VALUES);
+  var regLine=labels.map(function(lbl){
+    var m=parseInt((lbl+'').replace('T',''));
+    return Math.max(0,Math.round(SLOPE*m+INTERCEPT));
+  });
+  new Chart(el,{type:'bar',
+    data:{labels:labels,datasets:[
+      {label:'Thực tế',data:actual,backgroundColor:'#3B82F6',borderRadius:4},
+      {label:'Dự báo',data:forecast,backgroundColor:'rgba(251,191,36,0.4)',borderColor:'#D97706',borderWidth:1.5,borderRadius:4},
+      {type:'line',label:'Đường hồi quy',data:regLine,borderColor:'#EF4444',borderWidth:2.5,
+       pointRadius:4,pointBackgroundColor:'#EF4444',tension:0,fill:false},
+    ]},
+    options:{responsive:true,
+      scales:{y:{beginAtZero:true,title:{display:true,text:'phút'}}},
+      plugins:{legend:{position:'bottom'}}}});
+})();
 
 // ── UTILS ──
 function sigmoid(z){return 1/(1+Math.exp(-Math.max(-20,Math.min(20,z))))}
