@@ -63,7 +63,7 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Phân tích thực tế</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 16/03/2026 16:52</div>
+  <div class="timestamp">🕐 Cập nhật: 16/03/2026 17:00</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -198,7 +198,7 @@ canvas{max-height:280px}
 <br>T4: -4.5 × 4 + 55.7 = <span class="r">38 phút</span><br>T5: -4.5 × 5 + 55.7 = <span class="r">33 phút</span><br>T6: -4.5 × 6 + 55.7 = <span class="r">29 phút</span>
     </div>
     <div class="insight good">
-      <strong>📈 Xu hướng tốt:</strong> Mỗi tháng Median FRT giảm 4.5 phút. Nếu duy trì, T5 có thể đạt SLA target 5 phút.
+      <strong>📈 Xu hướng tốt:</strong> Mỗi tháng Median FRT giảm 4.5 phút. Dự kiến đạt SLA target 5 phút vào <strong>Tháng 12</strong>.
     </div>
     <div class="insight warn"><strong>R² = 0.116:</strong> Mô hình giải thích 12% biến động. Dự báo mang tính định hướng — phụ thuộc vào volume đơn và nhân sự.</div>
   </div>
@@ -414,8 +414,17 @@ var SRC_PASSES=[2,41,136,83,25,5,1,9,16,0,0,0];
 var SRC_FAILS=[2,77,288,209,65,18,4,37,85,1,6,13];
 var ACT_MONTHS=['T1','T2','T3'];
 var ACT_VALUES=[44,61,35];
+var ACT_SLA=[28.2,25.8,33.7];
+var ACT_TOTALS=[71,662,306];
+var CI_UPPER=[83,67,74];
+var CI_LOWER=[20,27,11];
 var FUT_MONTHS=['T4','T5','T6'];
 var FUT_VALUES=[38,33,29];
+var FUT_CI_U=[90,109,128];
+var FUT_CI_L=[0,0,0];
+var EXT_FUTURE=[{"x":4,"y":38,"ciU":90,"ciL":0,"reachTarget":false},{"x":5,"y":33,"ciU":109,"ciL":0,"reachTarget":false},{"x":6,"y":29,"ciU":128,"ciL":0,"reachTarget":false},{"x":7,"y":24,"ciU":147,"ciL":0,"reachTarget":false},{"x":8,"y":20,"ciU":167,"ciL":0,"reachTarget":false},{"x":9,"y":15,"ciU":187,"ciL":0,"reachTarget":false},{"x":10,"y":11,"ciU":206,"ciL":0,"reachTarget":false},{"x":11,"y":6,"ciU":226,"ciL":0,"reachTarget":false},{"x":12,"y":2,"ciU":246,"ciL":0,"reachTarget":true}];
+var OUTLIERS=[];
+var TARGET_MONTH=12;
 var SLOPE=-4.5;
 var INTERCEPT=55.7;
 
@@ -432,26 +441,177 @@ var INTERCEPT=55.7;
       plugins:{legend:{position:'bottom'}}}});
 })();
 
-// ── CHART HỒI QUY (tab Hồi quy tuyến tính) ──
+// ── CHART HỒI QUY NÂNG CAO ──
 (function(){
   var el=document.getElementById('chartRegression'); if(!el) return;
-  var labels=ACT_MONTHS.concat(FUT_MONTHS);
-  var actual=ACT_VALUES.concat(FUT_MONTHS.map(function(){return null;}));
-  var forecast=ACT_MONTHS.map(function(){return null;}).concat(FUT_VALUES);
+
+  // Ghép tất cả labels: actual + future + extended
+  var extLabels=EXT_FUTURE.filter(function(p){return FUT_MONTHS.indexOf('T'+p.x)<0;}).map(function(p){return 'T'+p.x;});
+  var labels=ACT_MONTHS.concat(FUT_MONTHS).concat(extLabels);
+  var nAct=ACT_MONTHS.length, nFut=FUT_MONTHS.length, nExt=extLabels.length;
+  var total=nAct+nFut+nExt;
+
+  function pad(arr, len, val){ var a=arr.slice(); while(a.length<len) a.push(val===undefined?null:val); return a; }
+
+  // Dataset 1: Cột thực tế
+  var actual=pad(ACT_VALUES, total);
+
+  // Dataset 2: Cột dự báo 3 tháng
+  var forecast=pad(new Array(nAct).fill(null).concat(FUT_VALUES), total);
+
+  // Dataset 3: Cột dự báo mở rộng (nếu có)
+  var extVals=new Array(nAct+nFut).fill(null);
+  extLabels.forEach(function(lbl){
+    var p=EXT_FUTURE.find(function(e){return 'T'+e.x===lbl;});
+    if(p) extVals.push(p.y);
+  });
+  var extForecast=pad(extVals, total);
+
+  // Dataset 4: Đường hồi quy (toàn bộ)
   var regLine=labels.map(function(lbl){
     var m=parseInt((lbl+'').replace('T',''));
-    return Math.max(0,Math.round(SLOPE*m+INTERCEPT));
+    return Math.max(0, Math.round(SLOPE*m+INTERCEPT));
   });
-  new Chart(el,{type:'bar',
-    data:{labels:labels,datasets:[
-      {label:'Thực tế',data:actual,backgroundColor:'#3B82F6',borderRadius:4},
-      {label:'Dự báo',data:forecast,backgroundColor:'rgba(251,191,36,0.4)',borderColor:'#D97706',borderWidth:1.5,borderRadius:4},
-      {type:'line',label:'Đường hồi quy',data:regLine,borderColor:'#EF4444',borderWidth:2.5,
-       pointRadius:4,pointBackgroundColor:'#EF4444',tension:0,fill:false},
+
+  // Dataset 5 & 6: Confidence band (actual + future 3 tháng)
+  var ciUpData  = pad(CI_UPPER.concat(FUT_CI_U), total);
+  var ciLoData  = pad(CI_LOWER.concat(FUT_CI_L), total);
+
+  // Dataset 7: SLA target line (y=5, toàn bộ)
+  var targetLine=new Array(total).fill(5);
+
+  // Màu cột dự báo mở rộng: đậm hơn khi sắp đạt target
+  var extColors=extLabels.map(function(lbl){
+    var p=EXT_FUTURE.find(function(e){return 'T'+e.x===lbl;});
+    return p&&p.reachTarget?'#16A34A':'rgba(251,191,36,0.25)';
+  });
+
+  new Chart(el,{
+    type:'bar',
+    data:{labels:labels, datasets:[
+      // Confidence band (fill between upper and lower)
+      {type:'line', label:'CI 95% trên', data:ciUpData,
+       borderColor:'transparent', backgroundColor:'rgba(59,130,246,0.10)',
+       pointRadius:0, fill:'+1', tension:0.3, order:5},
+      {type:'line', label:'CI 95% dưới', data:ciLoData,
+       borderColor:'transparent', backgroundColor:'rgba(59,130,246,0.10)',
+       pointRadius:0, fill:false, tension:0.3, order:5},
+      // SLA target
+      {type:'line', label:'SLA Target (5 phút)', data:targetLine,
+       borderColor:'#16A34A', borderWidth:2, borderDash:[6,4],
+       pointRadius:0, fill:false, tension:0, order:3},
+      // Đường hồi quy
+      {type:'line', label:'Hồi quy', data:regLine,
+       borderColor:'#EF4444', borderWidth:2.5,
+       pointRadius:3, pointBackgroundColor:'#EF4444',
+       tension:0, fill:false, order:2},
+      // Cột thực tế
+      {type:'bar', label:'Thực tế', data:actual,
+       backgroundColor:'#3B82F6', borderRadius:5, order:4},
+      // Cột dự báo 3 tháng
+      {type:'bar', label:'Dự báo (3T)', data:forecast,
+       backgroundColor:'rgba(251,191,36,0.55)', borderColor:'#D97706',
+       borderWidth:1.5, borderRadius:5, order:4},
+      // Cột dự báo mở rộng đến target
+      {type:'bar', label:'Dự báo đến target', data:extForecast,
+       backgroundColor:new Array(nAct+nFut).fill('transparent').concat(extColors),
+       borderColor:'#D97706', borderWidth:1, borderRadius:5, borderDash:[4,2], order:4},
     ]},
-    options:{responsive:true,
-      scales:{y:{beginAtZero:true,title:{display:true,text:'phút'}}},
-      plugins:{legend:{position:'bottom'}}}});
+    options:{
+      responsive:true,
+      interaction:{mode:'index', intersect:false},
+      plugins:{
+        legend:{
+          position:'bottom',
+          labels:{
+            filter:function(item){
+              return ['CI 95% trên','CI 95% dưới'].indexOf(item.text)<0;
+            },
+            boxWidth:14, font:{size:11}
+          }
+        },
+        tooltip:{
+          callbacks:{
+            title:function(items){return items[0].label;},
+            beforeBody:function(items){
+              var lbl=items[0].label;
+              var idx=ACT_MONTHS.indexOf(lbl);
+              if(idx>=0 && ACT_SLA[idx]!==undefined){
+                return ['SLA%: '+ACT_SLA[idx]+'% | Số đơn: '+ACT_TOTALS[idx]];
+              }
+              return [];
+            },
+            label:function(c){
+              if(c.dataset.label==='CI 95% trên'||c.dataset.label==='CI 95% dưới') return null;
+              if(c.raw===null||c.raw===undefined) return null;
+              var lbl=c.dataset.label;
+              var v=c.raw;
+              if(lbl==='SLA Target (5 phút)') return '🎯 Target: 5 phút';
+              if(lbl==='Hồi quy') return '📈 Hồi quy: '+v+' phút';
+              if(lbl==='Thực tế'){
+                // So sánh với tháng trước
+                var idx=c.dataIndex;
+                var prev=idx>0?ACT_VALUES[idx-1]:null;
+                var diff=prev!==null?v-prev:null;
+                var diffStr=diff!==null?(diff>0?' (▲'+diff+'p)':' (▼'+Math.abs(diff)+'p)'):'';
+                return '📊 Thực tế: '+v+' phút'+diffStr;
+              }
+              if(lbl==='Dự báo (3T)'||lbl==='Dự báo đến target'){
+                var p=EXT_FUTURE.find(function(e){return 'T'+e.x===c.label;});
+                var tStr=p&&p.reachTarget?' 🎯 ĐẠT TARGET!':'';
+                return '🔮 Dự báo: '+v+' phút'+tStr;
+              }
+              return c.dataset.label+': '+v+' phút';
+            },
+            afterBody:function(items){
+              var lbl=items[0].label;
+              // Outlier annotation
+              var m=parseInt((lbl+'').replace('T',''));
+              var out=OUTLIERS.find(function(o){return o.x===m;});
+              if(out){
+                return [out.type==='high'?'⚠️ Tháng bất thường cao (+'+ out.resid+'p)':'✅ Tháng bất thường thấp ('+out.resid+'p)'];
+              }
+              return [];
+            }
+          }
+        },
+        // Annotation plugin nếu có
+        annotation: (typeof Chart !== 'undefined' && Chart.registry && Chart.registry.plugins && Chart.registry.plugins.get('annotation')) ? {
+          annotations: (function(){
+            var ann={};
+            // Outlier markers
+            OUTLIERS.forEach(function(o,i){
+              ann['outlier'+i]={
+                type:'point',
+                xValue:'T'+o.x,
+                yValue:o.y,
+                backgroundColor:o.type==='high'?'rgba(239,68,68,0.15)':'rgba(34,197,94,0.15)',
+                borderColor:o.type==='high'?'#EF4444':'#22C55E',
+                borderWidth:2,
+                radius:14,
+              };
+            });
+            // Target month label
+            if(TARGET_MONTH){
+              ann['targetReach']={
+                type:'line',
+                xMin:'T'+TARGET_MONTH, xMax:'T'+TARGET_MONTH,
+                borderColor:'#16A34A', borderWidth:2, borderDash:[4,4],
+                label:{content:'🎯 Đạt target T'+TARGET_MONTH, enabled:true,
+                  position:'start', color:'#166534', font:{size:10, weight:'bold'},
+                  backgroundColor:'rgba(220,252,231,0.9)'}
+              };
+            }
+            return ann;
+          })()
+        } : {}
+      },
+      scales:{
+        y:{beginAtZero:true, title:{display:true, text:'Median FRT (phút)'},
+           ticks:{callback:function(v){return v+'p';}}}
+      }
+    }
+  });
 })();
 
 // ── UTILS ──
