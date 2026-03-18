@@ -122,7 +122,7 @@ canvas{max-height:280px}
 <div class="nav">
   <div class="nav-top">
     <div class="brand">📊 FRT <span>Dashboard</span></div>
-    <div class="timestamp">🕐 Cập nhật: 18/03/2026 11:27</div>
+    <div class="timestamp">🕐 Cập nhật: 18/03/2026 11:29</div>
   </div>
   <div class="tab-bar">
     <div class="tab active" onclick="switchTab('overview')">Tổng quan</div>
@@ -247,6 +247,7 @@ canvas{max-height:280px}
           <td><span class="badge br">🔴</span></td>
         </tr>
       </table>
+</div>
     </div>
   </div>
 </div>
@@ -303,7 +304,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Tỷ lệ đúng hạn (%) theo tháng — 2026</div>
     <div class="card-sub">Xanh = đạt ≥50% | Đỏ = dưới 50%</div>
-    <div style="position:relative;height:220px"><canvas id="chartMonthly"></canvas></div>
+    <div style="position:relative;width:100%;display:block;height:220px"><canvas id="chartMonthly"></canvas></div>
     <div id="monthly-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -311,7 +312,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">SLA% theo nguồn đơn — xếp hạng từ cao đến thấp</div>
     <div class="card-sub">Xanh = ≥50% | Cam = 30–50% | Đỏ = dưới 30%</div>
-    <div style="position:relative;height:280px"><canvas id="chartSourceSla"></canvas></div>
+    <div style="position:relative;width:100%;display:block;height:280px"><canvas id="chartSourceSla"></canvas></div>
     <div id="source-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -319,7 +320,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Số đơn nhận được theo từng khung giờ (8h–21h)</div>
     <div class="card-sub">Giờ nào nhiều đơn nhất? → Bố trí nhân lực phù hợp</div>
-    <div style="position:relative;height:200px"><canvas id="chartVolume"></canvas></div>
+    <div style="position:relative;width:100%;display:block;height:200px"><canvas id="chartVolume"></canvas></div>
     <div id="volume-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -327,7 +328,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Tỷ lệ đơn được xử lý trong từng khung thời gian</div>
     <div class="card-sub">Tích lũy — mỗi cột bao gồm tất cả đơn từ cột trước</div>
-    <div style="position:relative;height:200px"><canvas id="chartDist"></canvas></div>
+    <div style="position:relative;width:100%;display:block;height:200px"><canvas id="chartDist"></canvas></div>
     <div id="dist-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -335,7 +336,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Tỷ lệ đúng hạn (%) theo thứ — từ data thực tế</div>
     <div class="card-sub">Màu xám = không đủ data (dưới 3 đơn)</div>
-    <div style="position:relative;height:220px"><canvas id="chartWeekday"></canvas></div>
+    <div style="position:relative;width:100%;display:block;height:220px"><canvas id="chartWeekday"></canvas></div>
     <div id="wd-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -345,7 +346,6 @@ canvas{max-height:280px}
     <div class="card-sub">Xanh = SLA% cao | Đỏ = SLA% thấp | — = không đủ data</div>
     <div style="overflow-x:auto;margin-top:10px">
       <table id="heatmap-table" style="font-size:11px;border-collapse:collapse;width:100%"></table>
-</div>
     </div>
     <div style="display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap">
       <span style="font-size:11px;color:var(--muted)">Thang màu:</span>
@@ -365,7 +365,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Kết quả đơn: Đúng SLA vs Vượt SLA</div>
     <div class="card-sub">Chỉ tính đơn đã có trạng thái cuối — bỏ qua "Đang tư vấn" và trống</div>
-    <div style="position:relative;height:240px"><canvas id="chartStatus"></canvas></div>
+    <div style="position:relative;width:100%;display:block;height:240px"><canvas id="chartStatus"></canvas></div>
     <div id="status-table" style="margin-top:14px;overflow-x:auto"></div>
     <div id="status-insight" class="insight" style="margin-top:10px"></div>
   </div>
@@ -374,7 +374,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">% đơn chốt thành công theo tốc độ phản hồi</div>
     <div class="card-sub">Trả lời nhanh hơn có giúp chốt đơn nhiều hơn không?</div>
-    <div style="position:relative;height:220px"><canvas id="chartFrtConv"></canvas></div>
+    <div style="position:relative;width:100%;display:block;height:220px"><canvas id="chartFrtConv"></canvas></div>
     <div id="frt-conv-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -382,7 +382,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">% đơn chốt theo từng nguồn đơn</div>
     <div class="card-sub">Nguồn nào mang lại khách hàng chất lượng nhất?</div>
-    <div style="position:relative;height:280px"><canvas id="chartSrcConv"></canvas></div>
+    <div style="position:relative;width:100%;display:block;height:280px"><canvas id="chartSrcConv"></canvas></div>
     <div id="src-conv-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -390,7 +390,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">% đơn chốt theo khung giờ tạo đơn</div>
     <div class="card-sub">Khung giờ nào khách có nhu cầu thật sự cao nhất?</div>
-    <div style="position:relative;height:200px"><canvas id="chartHourConv"></canvas></div>
+    <div style="position:relative;width:100%;display:block;height:200px"><canvas id="chartHourConv"></canvas></div>
     <div id="hour-conv-insight" class="insight" style="margin-top:12px"></div>
   </div>
 </div>
@@ -422,8 +422,7 @@ canvas{max-height:280px}
       <div>
         <label style="font-size:10px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px">Nguồn đơn</label>
         <select id="p-src" onchange="predict()">
-          <option value="">— Chọn nguồn —</option>
-          <option value="TCĐM-Ý">TCĐM-Ý</option><option value="GG New Lead Form">GG New Lead Form</option><option value="Form liên hệ Website">Form liên hệ Website</option><option value="ĐH COD">ĐH COD</option><option value="Lì Xì Tết 2026">Lì Xì Tết 2026</option><option value="ĐH TG">ĐH TG</option><option value="Popup 8.3">Popup 8.3</option><option value="ĐH Bank/Online">ĐH Bank/Online</option><option value="Form 200K">Form 200K</option><option value="102 Đêm Ngủ Thử">102 Đêm Ngủ Thử</option><option value="Web TTN-Ý">Web TTN-Ý</option><option value="Dunlopillo">Dunlopillo</option>
+          <option value="TCĐM-Ý" selected>TCĐM-Ý</option><option value="GG New Lead Form">GG New Lead Form</option><option value="Form liên hệ Website">Form liên hệ Website</option><option value="ĐH COD">ĐH COD</option><option value="Lì Xì Tết 2026">Lì Xì Tết 2026</option><option value="ĐH TG">ĐH TG</option><option value="Popup 8.3">Popup 8.3</option><option value="ĐH Bank/Online">ĐH Bank/Online</option><option value="Form 200K">Form 200K</option><option value="102 Đêm Ngủ Thử">102 Đêm Ngủ Thử</option><option value="Web TTN-Ý">Web TTN-Ý</option><option value="Dunlopillo">Dunlopillo</option>
         </select>
       </div>
       <div>
@@ -1472,8 +1471,9 @@ function switchTab(t){
     if(el.getAttribute('onclick')==="switchTab('"+t+"')") el.classList.add('active');
   });
   document.getElementById('page-'+t).classList.add('active');
+
   if(t==='logistic'){
-    console.log('ALL_ROWS length:', ALL_ROWS.length, 'sample:', ALL_ROWS[0]);
+    // Destroy tất cả instances
     chartMonthlyInst=destroyChart(chartMonthlyInst);
     chartSourceSlaInst=destroyChart(chartSourceSlaInst);
     chartVolumeInst=destroyChart(chartVolumeInst);
@@ -1483,27 +1483,35 @@ function switchTab(t){
     chartFrtConvInst=destroyChart(chartFrtConvInst);
     chartSrcConvInst=destroyChart(chartSrcConvInst);
     chartHourConvInst=destroyChart(chartHourConvInst);
-    setTimeout(function(){applyDateFilter();},30);
+    // Dùng requestAnimationFrame để chắc chắn tab đã visible và có kích thước
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        applyDateFilter();
+      });
+    });
   }
   if(t==='predictor'){
-    setTimeout(function(){
-      var rc=Chart.getChart?Chart.getChart('chartRisk'):null;
-      if(rc) rc.destroy();
-      (function(){
-        var el=document.getElementById('chartRisk'); if(!el) return;
-        var pairs=SRC_LABELS.map(function(l,i){return{l:l,v:Math.round(100-SRC_RATES[i])};})
-          .sort(function(a,b){return b.v-a.v;});
-        function rC(v){return v>=80?'#DC2626':v>=60?'#F97316':v>=40?'#EAB308':'#22C55E';}
-        new Chart(el,{type:'bar',
-          data:{labels:pairs.map(function(p){return p.l;}),
-            datasets:[{label:'Tỷ lệ vượt SLA (%)',data:pairs.map(function(p){return p.v;}),
-              backgroundColor:pairs.map(function(p){return rC(p.v);}),borderRadius:4}]},
-          options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
-            scales:{x:{beginAtZero:true,max:100,title:{display:true,text:'%'}}},
-            plugins:{legend:{display:false}}}});
-      })();
-      predict();
-    },30);
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        // Rebuild risk chart
+        var el=document.getElementById('chartRisk');
+        if(el){
+          var existing=Chart.getChart?Chart.getChart(el):null;
+          if(existing) existing.destroy();
+          var pairs=SRC_LABELS.map(function(l,i){return{l:l,v:Math.round(100-SRC_RATES[i])};})
+            .sort(function(a,b){return b.v-a.v;});
+          function rC(v){return v>=80?'#DC2626':v>=60?'#F97316':v>=40?'#EAB308':'#22C55E';}
+          new Chart(el,{type:'bar',
+            data:{labels:pairs.map(function(p){return p.l;}),
+              datasets:[{label:'Tỷ lệ vượt SLA (%)',data:pairs.map(function(p){return p.v;}),
+                backgroundColor:pairs.map(function(p){return rC(p.v);}),borderRadius:4}]},
+            options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+              scales:{x:{beginAtZero:true,max:100,title:{display:true,text:'%'}}},
+              plugins:{legend:{display:false}}}});
+        }
+        predict();
+      });
+    });
   }
 }
 
