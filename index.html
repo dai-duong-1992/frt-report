@@ -63,7 +63,7 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Phân tích thực tế</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 18/03/2026 10:45</div>
+  <div class="timestamp">🕐 Cập nhật: 18/03/2026 10:52</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -234,7 +234,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Tỷ lệ đúng hạn (%) theo tháng — 2026</div>
     <div class="card-sub">Xanh = đạt ≥50% | Đỏ = dưới 50%</div>
-    <canvas id="chartMonthly" height="220" style="max-height:220px"></canvas>
+    <div style="position:relative;height:220px"><canvas id="chartMonthly"></canvas></div>
     <div id="monthly-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -242,7 +242,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">SLA% theo nguồn đơn — xếp hạng từ cao đến thấp</div>
     <div class="card-sub">Xanh = ≥50% | Cam = 30–50% | Đỏ = dưới 30%</div>
-    <canvas id="chartSourceSla" height="280" style="max-height:280px"></canvas>
+    <div style="position:relative;height:280px"><canvas id="chartSourceSla"></canvas></div>
     <div id="source-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -250,7 +250,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Số đơn nhận được theo từng khung giờ (8h–21h)</div>
     <div class="card-sub">Giờ nào nhiều đơn nhất? → Bố trí nhân lực phù hợp</div>
-    <canvas id="chartVolume" height="200" style="max-height:200px"></canvas>
+    <div style="position:relative;height:200px"><canvas id="chartVolume"></canvas></div>
     <div id="volume-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -258,7 +258,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Tỷ lệ đơn được xử lý trong từng khung thời gian</div>
     <div class="card-sub">Tích lũy — mỗi cột bao gồm tất cả đơn từ cột trước</div>
-    <canvas id="chartDist" height="200" style="max-height:200px"></canvas>
+    <div style="position:relative;height:200px"><canvas id="chartDist"></canvas></div>
     <div id="dist-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -266,7 +266,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Tỷ lệ đúng hạn (%) theo thứ — từ data thực tế</div>
     <div class="card-sub">Màu xám = không đủ data (dưới 3 đơn)</div>
-    <canvas id="chartWeekday" height="220" style="max-height:220px"></canvas>
+    <div style="position:relative;height:220px"><canvas id="chartWeekday"></canvas></div>
     <div id="wd-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -295,7 +295,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Kết quả đơn: Đúng SLA vs Vượt SLA</div>
     <div class="card-sub">Chỉ tính đơn đã có trạng thái cuối — bỏ qua "Đang tư vấn" và trống</div>
-    <canvas id="chartStatus" height="240" style="max-height:240px"></canvas>
+    <div style="position:relative;height:240px"><canvas id="chartStatus"></canvas></div>
     <div id="status-table" style="margin-top:14px;overflow-x:auto"></div>
     <div id="status-insight" class="insight" style="margin-top:10px"></div>
   </div>
@@ -304,7 +304,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">% đơn chốt thành công theo tốc độ phản hồi</div>
     <div class="card-sub">Trả lời nhanh hơn có giúp chốt đơn nhiều hơn không?</div>
-    <canvas id="chartFrtConv" height="220" style="max-height:220px"></canvas>
+    <div style="position:relative;height:220px"><canvas id="chartFrtConv"></canvas></div>
     <div id="frt-conv-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -312,7 +312,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">% đơn chốt theo từng nguồn đơn</div>
     <div class="card-sub">Nguồn nào mang lại khách hàng chất lượng nhất?</div>
-    <canvas id="chartSrcConv" height="280" style="max-height:280px"></canvas>
+    <div style="position:relative;height:280px"><canvas id="chartSrcConv"></canvas></div>
     <div id="src-conv-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -320,7 +320,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">% đơn chốt theo khung giờ tạo đơn</div>
     <div class="card-sub">Khung giờ nào khách có nhu cầu thật sự cao nhất?</div>
-    <canvas id="chartHourConv" height="200" style="max-height:200px"></canvas>
+    <div style="position:relative;height:200px"><canvas id="chartHourConv"></canvas></div>
     <div id="hour-conv-insight" class="insight" style="margin-top:12px"></div>
   </div>
 </div>
@@ -647,18 +647,18 @@ function predict(){
   var wd=+document.getElementById('p-wd').value;
   var srcName=src?src.value:'';
 
-  // SLA: dùng SLA% thực tế theo nguồn từ SRC_RATES
   var srcIdx=SRC_LABELS.indexOf(srcName);
-  var srcSlaRate=srcIdx>=0?SRC_RATES[srcIdx]/100:0.3;
-  // Điều chỉnh nhẹ theo giờ từ ALL_ROWS
-  var hourRows=ALL_ROWS.filter(function(r){return r.hour===hr;});
-  var hourRate=hourRows.length>=5?hourRows.filter(function(r){return r.ok;}).length/hourRows.length:srcSlaRate;
-  var wdRows=ALL_ROWS.filter(function(r){return r.wd===wd;});
-  var wdRate=wdRows.length>=5?wdRows.filter(function(r){return r.ok;}).length/wdRows.length:srcSlaRate;
-  var slaRate=srcSlaRate*0.5+hourRate*0.3+wdRate*0.2;
-  var probSla=Math.round((1-slaRate)*1000)/10;
+  // SRC_RATES là integer (27, 35...) nên chia 100
+  var srcSlaRate=(srcIdx>=0 && SRC_RATES[srcIdx]!=null) ? SRC_RATES[srcIdx]/100 : 0.3;
 
-  // Chốt: từ ALL_ROWS filtered
+  var hourRows=ALL_ROWS.filter(function(r){return r.hour===hr;});
+  var hourRate=hourRows.length>=5 ? hourRows.filter(function(r){return r.ok;}).length/hourRows.length : srcSlaRate;
+  var wdRows=ALL_ROWS.filter(function(r){return r.wd===wd;});
+  var wdRate=wdRows.length>=5 ? wdRows.filter(function(r){return r.ok;}).length/wdRows.length : srcSlaRate;
+  var slaRate=srcSlaRate*0.5+hourRate*0.3+wdRate*0.2;
+  var probSla=isNaN(slaRate)?null:Math.round((1-slaRate)*1000)/10;
+
+  // Chốt
   var skipSt=['đang tư vấn','trùng đơn','test',''];
   var srcFinal=ALL_ROWS.filter(function(r){
     var s=(r.st||'').trim().toLowerCase();
@@ -668,6 +668,7 @@ function predict(){
     ?Math.round(srcFinal.filter(function(r){return(r.st||'').trim().toLowerCase()==='đã chốt';}).length/srcFinal.length*1000)/10
     :null;
 
+  console.log('predict: src='+srcName+' srcIdx='+srcIdx+' srcSlaRate='+srcSlaRate+' probSla='+probSla+' ALL_ROWS='+ALL_ROWS.length);
 
   // ── SLA ──
   var elSla=document.getElementById('prob-sla');
@@ -696,7 +697,7 @@ function predict(){
     if(probChot===null){
       elChot.textContent='Chưa đủ data';
       elChot.style.color='#94A3B8';
-      if(advChot){advChot.textContent='Cần ít nhất 10 đơn có trạng thái cuối để dự đoán';advChot.style.background='#F1F5F9';advChot.style.color='#64748B';}
+      if(advChot){advChot.textContent='Cần ít nhất 5 đơn có trạng thái cuối';advChot.style.background='#F1F5F9';advChot.style.color='#64748B';}
     } else {
       elChot.textContent=probChot.toFixed(1)+'%';
       elChot.style.color=chotColor(probChot);
@@ -1385,16 +1386,7 @@ function renderHourConv(rows){
 }
 
 (function(){
-  renderMonthly(ALL_ROWS);
-  renderSourceSla(ALL_ROWS);
-  renderVolume(ALL_ROWS);
-  renderDist(ALL_ROWS);
-  renderWeekday(ALL_ROWS);
-  renderHeatmap(ALL_ROWS);
-  renderStatus(ALL_ROWS);
-  renderFrtConv(ALL_ROWS);
-  renderSrcConv(ALL_ROWS);
-  renderHourConv(ALL_ROWS);
+  // Logistic charts sẽ render lần đầu khi user click tab
   var dates=ALL_ROWS.filter(function(r){return r.date;}).map(function(r){return r.date;}).sort();
   if(dates.length){
     var f=document.getElementById('date-from');
