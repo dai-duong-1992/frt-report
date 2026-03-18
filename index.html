@@ -63,7 +63,7 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Phân tích thực tế</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 18/03/2026 10:29</div>
+  <div class="timestamp">🕐 Cập nhật: 18/03/2026 10:33</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -633,7 +633,9 @@ function drawGauge(svgId, prob, color){
   var nl1=document.getElementById('m-sla-n');
   var el2=document.getElementById('m-chot-acc');
   var nl2=document.getElementById('m-chot-n');
-  if(el1) el1.textContent=Math.round((1-SRC_RATES.reduce(function(s,r){return s+r;},0)/Math.max(SRC_RATES.length,1))*100)+'%';
+  // SRC_RATES là SLA% (0-100), tính avg vượt SLA = 100 - avg(SLA%)
+  var avgSla=SRC_RATES.length?Math.round(SRC_RATES.reduce(function(s,r){return s+r;},0)/SRC_RATES.length):0;
+  if(el1) el1.textContent=(100-avgSla)+'%';
   if(nl1) nl1.textContent='avg vượt SLA | '+SRC_LABELS.length+' nguồn';
   if(el2) el2.textContent='—';
   if(nl2) nl2.textContent='Cần thêm data trạng thái';
@@ -1403,6 +1405,18 @@ function switchTab(t){
     if(el.getAttribute('onclick')==="switchTab('"+t+"')") el.classList.add('active');
   });
   document.getElementById('page-'+t).classList.add('active');
+  // Re-render charts khi tab logistic được mở (Chart.js cần canvas visible)
+  if(t==='logistic'){
+    setTimeout(function(){applyDateFilter();},50);
+  }
+  if(t==='predictor'){
+    setTimeout(function(){
+      predict();
+      // Resize risk chart
+      var rc=Chart.getChart('chartRisk');
+      if(rc) rc.resize();
+    },50);
+  }
 }
 
 predict();
