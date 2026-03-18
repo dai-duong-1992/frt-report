@@ -63,7 +63,7 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Phân tích thực tế</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 18/03/2026 10:33</div>
+  <div class="timestamp">🕐 Cập nhật: 18/03/2026 10:38</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -782,15 +782,22 @@ function clearDateFilter(){
 function upsertChart(inst, id, config){
   var el=document.getElementById(id);
   if(!el) return inst;
-  if(inst){
-    config.data.datasets.forEach(function(ds,i){
-      if(inst.data.datasets[i]) inst.data.datasets[i].data=ds.data;
-      if(ds.backgroundColor) inst.data.datasets[i].backgroundColor=ds.backgroundColor;
-    });
-    inst.data.labels=config.data.labels;
-    inst.update();
-    return inst;
-  }
+  // Nếu inst tồn tại và canvas còn hợp lệ, cập nhật data
+  try {
+    if(inst && inst.canvas && inst.canvas.isConnected){
+      config.data.datasets.forEach(function(ds,i){
+        if(inst.data.datasets[i]){
+          inst.data.datasets[i].data=ds.data;
+          if(ds.backgroundColor) inst.data.datasets[i].backgroundColor=ds.backgroundColor;
+        }
+      });
+      inst.data.labels=config.data.labels;
+      inst.update();
+      return inst;
+    }
+  } catch(e){}
+  // Tạo mới
+  try{ if(inst) inst.destroy(); }catch(e){}
   return new Chart(el, config);
 }
 
@@ -1405,18 +1412,44 @@ function switchTab(t){
     if(el.getAttribute('onclick')==="switchTab('"+t+"')") el.classList.add('active');
   });
   document.getElementById('page-'+t).classList.add('active');
-  // Re-render charts khi tab logistic được mở (Chart.js cần canvas visible)
   if(t==='logistic'){
-    setTimeout(function(){applyDateFilter();},50);
+    // Hủy tất cả chart instances để tạo lại với kích thước đúng
+    chartMonthlyInst=destroyChart(chartMonthlyInst);
+    chartSourceSlaInst=destroyChart(chartSourceSlaInst);
+    chartVolumeInst=destroyChart(chartVolumeInst);
+    chartDistInst=destroyChart(chartDistInst);
+    chartWdInst=destroyChart(chartWdInst);
+    chartStInst=destroyChart(chartStInst);
+    chartFrtConvInst=destroyChart(chartFrtConvInst);
+    chartSrcConvInst=destroyChart(chartSrcConvInst);
+    chartHourConvInst=destroyChart(chartHourConvInst);
+    setTimeout(function(){applyDateFilter();},30);
   }
   if(t==='predictor'){
     setTimeout(function(){
+      var rc=Chart.getChart?Chart.getChart('chartRisk'):null;
+      if(rc) rc.destroy();
+      (function(){
+        var el=document.getElementById('chartRisk'); if(!el) return;
+        var pairs=SRC_LABELS.map(function(l,i){return{l:l,v:Math.round(100-SRC_RATES[i])};})
+          .sort(function(a,b){return b.v-a.v;});
+        function rC(v){return v>=80?'#DC2626':v>=60?'#F97316':v>=40?'#EAB308':'#22C55E';}
+        new Chart(el,{type:'bar',
+          data:{labels:pairs.map(function(p){return p.l;}),
+            datasets:[{label:'Tỷ lệ vượt SLA (%)',data:pairs.map(function(p){return p.v;}),
+              backgroundColor:pairs.map(function(p){return rC(p.v);}),borderRadius:4}]},
+          options:{indexAxis:'y',responsive:true,
+            scales:{x:{beginAtZero:true,max:100,title:{display:true,text:'%'}}},
+            plugins:{legend:{display:false}}}});
+      })();
       predict();
-      // Resize risk chart
-      var rc=Chart.getChart('chartRisk');
-      if(rc) rc.resize();
-    },50);
+    },30);
   }
+}
+
+function destroyChart(inst){
+  try{ if(inst) inst.destroy(); } catch(e){}
+  return null;
 }
 
 predict();
