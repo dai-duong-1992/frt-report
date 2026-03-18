@@ -63,7 +63,7 @@ canvas{max-height:280px}
   <div class="tab" onclick="switchTab('regression')">Hồi quy tuyến tính</div>
   <div class="tab" onclick="switchTab('logistic')">Phân tích thực tế</div>
   <div class="tab" onclick="switchTab('predictor')">Dự đoán</div>
-  <div class="timestamp">🕐 Cập nhật: 18/03/2026 10:42</div>
+  <div class="timestamp">🕐 Cập nhật: 18/03/2026 10:45</div>
 </div>
 
 <!-- ── TỔNG QUAN ── -->
@@ -234,7 +234,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Tỷ lệ đúng hạn (%) theo tháng — 2026</div>
     <div class="card-sub">Xanh = đạt ≥50% | Đỏ = dưới 50%</div>
-    <canvas id="chartMonthly" style="max-height:220px"></canvas>
+    <canvas id="chartMonthly" height="220" style="max-height:220px"></canvas>
     <div id="monthly-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -242,7 +242,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">SLA% theo nguồn đơn — xếp hạng từ cao đến thấp</div>
     <div class="card-sub">Xanh = ≥50% | Cam = 30–50% | Đỏ = dưới 30%</div>
-    <canvas id="chartSourceSla" style="max-height:280px"></canvas>
+    <canvas id="chartSourceSla" height="280" style="max-height:280px"></canvas>
     <div id="source-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -250,7 +250,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Số đơn nhận được theo từng khung giờ (8h–21h)</div>
     <div class="card-sub">Giờ nào nhiều đơn nhất? → Bố trí nhân lực phù hợp</div>
-    <canvas id="chartVolume" style="max-height:200px"></canvas>
+    <canvas id="chartVolume" height="200" style="max-height:200px"></canvas>
     <div id="volume-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -258,7 +258,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Tỷ lệ đơn được xử lý trong từng khung thời gian</div>
     <div class="card-sub">Tích lũy — mỗi cột bao gồm tất cả đơn từ cột trước</div>
-    <canvas id="chartDist" style="max-height:200px"></canvas>
+    <canvas id="chartDist" height="200" style="max-height:200px"></canvas>
     <div id="dist-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -266,7 +266,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Tỷ lệ đúng hạn (%) theo thứ — từ data thực tế</div>
     <div class="card-sub">Màu xám = không đủ data (dưới 3 đơn)</div>
-    <canvas id="chartWeekday" style="max-height:220px"></canvas>
+    <canvas id="chartWeekday" height="220" style="max-height:220px"></canvas>
     <div id="wd-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -295,7 +295,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">Kết quả đơn: Đúng SLA vs Vượt SLA</div>
     <div class="card-sub">Chỉ tính đơn đã có trạng thái cuối — bỏ qua "Đang tư vấn" và trống</div>
-    <canvas id="chartStatus" style="max-height:240px"></canvas>
+    <canvas id="chartStatus" height="240" style="max-height:240px"></canvas>
     <div id="status-table" style="margin-top:14px;overflow-x:auto"></div>
     <div id="status-insight" class="insight" style="margin-top:10px"></div>
   </div>
@@ -304,7 +304,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">% đơn chốt thành công theo tốc độ phản hồi</div>
     <div class="card-sub">Trả lời nhanh hơn có giúp chốt đơn nhiều hơn không?</div>
-    <canvas id="chartFrtConv" style="max-height:220px"></canvas>
+    <canvas id="chartFrtConv" height="220" style="max-height:220px"></canvas>
     <div id="frt-conv-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -312,7 +312,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">% đơn chốt theo từng nguồn đơn</div>
     <div class="card-sub">Nguồn nào mang lại khách hàng chất lượng nhất?</div>
-    <canvas id="chartSrcConv" style="max-height:280px"></canvas>
+    <canvas id="chartSrcConv" height="280" style="max-height:280px"></canvas>
     <div id="src-conv-insight" class="insight" style="margin-top:12px"></div>
   </div>
 
@@ -320,7 +320,7 @@ canvas{max-height:280px}
   <div class="card">
     <div class="card-title">% đơn chốt theo khung giờ tạo đơn</div>
     <div class="card-sub">Khung giờ nào khách có nhu cầu thật sự cao nhất?</div>
-    <canvas id="chartHourConv" style="max-height:200px"></canvas>
+    <canvas id="chartHourConv" height="200" style="max-height:200px"></canvas>
     <div id="hour-conv-insight" class="insight" style="margin-top:12px"></div>
   </div>
 </div>
@@ -432,7 +432,7 @@ var INTERCEPT=55.7;
       {label:'Đúng hạn',data:SRC_PASSES,backgroundColor:'#22C55E',borderRadius:4},
       {label:'Vượt SLA',data:SRC_FAILS,backgroundColor:'#EF4444',borderRadius:4},
     ]},
-    options:{responsive:true,indexAxis:'y',
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
       scales:{x:{stacked:true,beginAtZero:true},y:{stacked:true}},
       plugins:{legend:{position:'bottom'}}}});
 })();
@@ -514,7 +514,7 @@ var INTERCEPT=55.7;
        borderColor:'#D97706', borderWidth:1, borderRadius:5, borderDash:[4,2], order:4},
     ]},
     options:{
-      responsive:true,
+      responsive:true,maintainAspectRatio:false,
       interaction:{mode:'index', intersect:false},
       plugins:{
         legend:{
@@ -726,7 +726,7 @@ predict();
     data:{labels:pairs.map(function(p){return p.l;}),
       datasets:[{label:'Tỷ lệ vượt SLA (%)',data:pairs.map(function(p){return p.v;}),
         backgroundColor:pairs.map(function(p){return rC(p.v);}),borderRadius:4}]},
-    options:{indexAxis:'y',responsive:true,
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
       scales:{x:{beginAtZero:true,max:100,title:{display:true,text:'%'}}},
       plugins:{legend:{display:false}}}});
 })();
@@ -862,7 +862,7 @@ function renderMonthly(rows){
   chartMonthlyInst=upsertChart(chartMonthlyInst,'chartMonthly',{
     type:'bar',
     data:{labels:labels,datasets:[{label:'SLA%',data:rates,backgroundColor:colors,borderRadius:6}]},
-    options:{responsive:true,
+    options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
         var n=totals[c.dataIndex];
         return c.raw===null?'Không đủ data':c.raw+'% ('+n+' đơn)';
@@ -890,7 +890,7 @@ function renderSourceSla(rows){
   chartSourceSlaInst=upsertChart(chartSourceSlaInst,'chartSourceSla',{
     type:'bar',
     data:{labels:labels,datasets:[{label:'SLA%',data:rates,backgroundColor:colors,borderRadius:6}]},
-    options:{responsive:true,indexAxis:'y',
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
       plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
         return c.raw+'% ('+totals[c.dataIndex]+' đơn)';
       }}}},
@@ -918,7 +918,7 @@ function renderVolume(rows){
   chartVolumeInst=upsertChart(chartVolumeInst,'chartVolume',{
     type:'bar',
     data:{labels:labels,datasets:[{label:'Số đơn',data:totals,backgroundColor:colors,borderRadius:6}]},
-    options:{responsive:true,
+    options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
         var r=rates[c.dataIndex];
         return c.raw+' đơn'+(r!==null?' | SLA: '+r+'%':'');
@@ -1029,7 +1029,7 @@ function renderDist(rows){
   chartDistInst=new Chart(el,{
     type:'bar',
     data:{labels:labels,datasets:[{label:'% đơn',data:pcts,backgroundColor:colors,borderRadius:6}]},
-    options:{responsive:true,
+    options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw+'% ('+counts[c.dataIndex]+' đơn)';}}},},
       scales:{y:{beginAtZero:true,max:100,ticks:{callback:function(v){return v+'%'}},title:{display:true,text:'Tỷ lệ tích lũy (%)'}}}}
   });
@@ -1054,7 +1054,7 @@ function renderWeekday(rows){
     chartWdInst=new Chart(el,{
       type:'bar',
       data:{labels:labels,datasets:[{label:'SLA%',data:rates,backgroundColor:bgColors,borderRadius:6}]},
-      options:{responsive:true,
+      options:{responsive:true,maintainAspectRatio:false,
         plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
           var v=c.raw; var n=totals[c.dataIndex];
           return v===null?'Không đủ data ('+n+' đơn)':v+'% SLA ('+n+' đơn)';
@@ -1155,7 +1155,7 @@ function renderStatus(rows){
           {label:'Vượt SLA',data:failData,backgroundColor:'#EF4444',borderRadius:6,stack:'s'},
         ]
       },
-      options:{responsive:true,
+      options:{responsive:true,maintainAspectRatio:false,
         plugins:{legend:{display:true},tooltip:{callbacks:{label:function(c){
           var n=totals[c.dataIndex];
           var pct=n?Math.round(c.raw/n*100):0;
@@ -1293,7 +1293,7 @@ function renderFrtConv(rows){
   chartFrtConvInst=upsertChart(chartFrtConvInst,'chartFrtConv',{
     type:'bar',
     data:{labels:labels,datasets:[{label:'% Chốt',data:rates,backgroundColor:colors,borderRadius:6}]},
-    options:{responsive:true,
+    options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
         var i=c.dataIndex;
         return c.raw===null?'Không đủ data ('+totals[i]+' đơn)':
@@ -1336,7 +1336,7 @@ function renderSrcConv(rows){
   chartSrcConvInst=upsertChart(chartSrcConvInst,'chartSrcConv',{
     type:'bar',
     data:{labels:labels,datasets:[{label:'% Chốt',data:rates,backgroundColor:colors,borderRadius:6}]},
-    options:{responsive:true,indexAxis:'y',
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
       plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
         return c.raw+'% chốt ('+chots[c.dataIndex]+'/'+totals[c.dataIndex]+' đơn)';
       }}}},
@@ -1365,7 +1365,7 @@ function renderHourConv(rows){
   chartHourConvInst=upsertChart(chartHourConvInst,'chartHourConv',{
     type:'bar',
     data:{labels:labels,datasets:[{label:'% Chốt',data:rates,backgroundColor:colors,borderRadius:6}]},
-    options:{responsive:true,
+    options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){
         var i=c.dataIndex;
         return c.raw===null?'Không đủ data ('+totals[i]+' đơn)':
@@ -1413,7 +1413,7 @@ function switchTab(t){
   });
   document.getElementById('page-'+t).classList.add('active');
   if(t==='logistic'){
-    // Hủy tất cả chart instances để tạo lại với kích thước đúng
+    console.log('ALL_ROWS length:', ALL_ROWS.length, 'sample:', ALL_ROWS[0]);
     chartMonthlyInst=destroyChart(chartMonthlyInst);
     chartSourceSlaInst=destroyChart(chartSourceSlaInst);
     chartVolumeInst=destroyChart(chartVolumeInst);
@@ -1438,7 +1438,7 @@ function switchTab(t){
           data:{labels:pairs.map(function(p){return p.l;}),
             datasets:[{label:'Tỷ lệ vượt SLA (%)',data:pairs.map(function(p){return p.v;}),
               backgroundColor:pairs.map(function(p){return rC(p.v);}),borderRadius:4}]},
-          options:{indexAxis:'y',responsive:true,
+          options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
             scales:{x:{beginAtZero:true,max:100,title:{display:true,text:'%'}}},
             plugins:{legend:{display:false}}}});
       })();
