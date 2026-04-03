@@ -122,7 +122,7 @@ canvas{max-height:280px}
 <div class="nav">
   <div class="nav-top">
     <div class="brand">📊 FRT <span>Dashboard</span></div>
-    <div class="timestamp">🕐 Cập nhật: 03/04/2026 14:06</div>
+    <div class="timestamp">🕐 Cập nhật: 03/04/2026 14:13</div>
   </div>
   <div class="tab-bar">
     <div class="tab active" onclick="switchTab('overview')">Tổng quan</div>
@@ -573,18 +573,6 @@ var chartFrtConvInst=null, chartSrcConvInst=null, chartHourConvInst=null;
       plugins:{legend:{position:'bottom'}}}});
 })();
 
-// ── CHART NGUỒN ĐƠN (tab Tổng quan) ──
-(function(){
-  var el=document.getElementById('chartSource'); if(!el) return;
-  new Chart(el,{type:'bar',
-    data:{labels:SRC_LABELS,datasets:[
-      {label:'Đúng hạn',data:SRC_PASSES,backgroundColor:'#22C55E',borderRadius:4},
-      {label:'Vượt SLA',data:SRC_FAILS,backgroundColor:'#EF4444',borderRadius:4},
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
-      scales:{x:{stacked:true,beginAtZero:true},y:{stacked:true}},
-      plugins:{legend:{position:'bottom'}}}});
-})();
 
 // ── CHART FRT CHẬM NHẤT ──
 var slowestMode='day';
